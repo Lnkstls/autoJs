@@ -1,6 +1,6 @@
 # autoJs
 常用脚本
 
-###流量控制
+### 流量控制
 
-  GBControl.py
+  GBControl
