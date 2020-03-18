@@ -2,7 +2,7 @@
 常用脚本
 
 ## 流量控制
-- GBControl
+- (GBControl)[https://github.com/LnksGit/autoJs/blob/master/GBControl.py]
 ```
 apt-get -y install vnstat #安装vnstat
 vnstat --iflist #网卡列表
