@@ -1,9 +1,8 @@
 # autoJs
 常用脚本
 
-# 流量控制
+## 流量控制
 - GBControl
-
 ```
 apt-get -y install vnstat #安装vnstat
 vnstat --iflist #网卡列表
