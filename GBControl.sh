@@ -1,4 +1,5 @@
 
+#!/usr/bin/python3
 import os
 limit_total = 0  # limit_total 上传+下载的流量限制，单位GB，如果不限制就是0，如果限制1T就是1024
 limit_in = 0  # limit_in 下载的流量限制，单位GB，如果不限制就是0，如果限制1T就是1024
