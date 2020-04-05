@@ -6,8 +6,8 @@ limit_total = 0  # limit_total 上传+下载的流量限制，单位GB，如果�
 limit_in = 0  # limit_in 下载的流量限制，单位GB，如果不限制就是0，如果限制1T就是1024
 limit_out = 0  # limit_out 上传的流量限制，单位GB，如果不限制就是0，如果限制1T就是1024
 limit_rema = 1  # unit GB 剩余流量限制
-logsPwd = "/www/autoJs/GBControl.logs" #日志目录
-killssr = "halt" #shell命令
+logsPwd = "/www/autoJs/GBControl.logs" #日志存储位置
+killssr = "halt" #流量超出shell命令
 
 NET_IN = 0
 NET_OUT = 0
@@ -42,14 +42,15 @@ else:
 print("logsPwd=", logsPwd)
 
 # logs
-def setContent(content, file):
-    # self.file=file if file!=None else None
-    # self.file=file if file!='' else print(False)
-    with open(file, 'a', encoding='utf-8') as f:
-        return f.write(content+"\n")
-def setStr(var):
-    return str(var)
-# +NET_IN+"---NET_OUT="+NET_OUT+"---total="+NET_IN+NET_OUT
-localTime = time.strftime("%m-%d %H:%m", time.localtime()) 
-content = "["+setStr(localTime)+"]"+"NET_IN="+setStr(NET_IN)+"---NET_OUT="+setStr(NET_OUT)+"---total="+setStr(NET_IN+NET_OUT)
-setContent(content, logsPwd)
+# def setContent(content, file):
+#     # self.file=file if file!=None else None
+#     # self.file=file if file!='' else print(False)
+#     with open(file, 'a', encoding='utf-8') as f:
+#         return f.write(content+"\n")
+# def setStr(var):
+#     return str(var)
+# # +NET_IN+"---NET_OUT="+NET_OUT+"---total="+NET_IN+NET_OUT
+
+# localTime = time.strftime("%m-%d %H:%m", time.localtime()) 
+# content = "["+setStr(localTime)+"]"+"NET_IN="+setStr(NET_IN)+"---NET_OUT="+setStr(NET_OUT)+"---total="+setStr(NET_IN+NET_OUT)
+# setContent(content, logsPwd)
