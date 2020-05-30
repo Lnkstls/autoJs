@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.1"
+sh_ver="0.2"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
 
