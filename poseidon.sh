@@ -171,7 +171,6 @@ rm_bt() {
     wget --no-check-certificate -d "${rmbtlink}" && bash install_panel.sh
 }
 install_hot() {
-    mkdir ~/status && cd ~/status
     wget --no-check-certificate -d https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh && chmod +x status.sh && ./status.sh c
 }
 dis_ufw() {
