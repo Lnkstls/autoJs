@@ -6,7 +6,7 @@ sh_ver="0.2"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
 
-update_install() {
+update_sh() {
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
 	sh_new_ver=$(wget -qO- "${github}/poseidon.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
@@ -215,6 +215,9 @@ ${font_color_up}10.${font_color_end}设置上海时区并对齐
 -----------------------------------------"
     read -p "请输入数字：" num
     case "$num" in
+    0)
+        update_sh
+        ;;
     1)
         wget_bbr
         ;;
