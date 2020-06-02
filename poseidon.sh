@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.2"
+sh_ver="0.3"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
 
@@ -66,7 +66,7 @@ set_tcp_config() {
 
     read -p "容器名称(默认v2ray-tcp):" dc_name
     dc_name=${dc_name:-v2ray-tcp}
-    read -p "连接端口(默认80):" dc_port
+    read -p "服务端口(默认80):" dc_port
     dc_port=${dc_port:-80}
 
     if [ -d "$dc_name" ]; then
@@ -82,7 +82,7 @@ set_tcp_config() {
         cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo "config.json OK"
         wget -O docker-compose.yml $docker_tcp_config
         cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo "docker-compose OK"
-        docker-compose up -d && echo $dc_name >>../update && echo "set update OK" && docker-compose logs -f
+        docker-compose up -d && echo $dc_name  && echo "set update OK" && docker-compose logs -f
     else
         echo "输入错误！"
         sleep 3s
@@ -110,6 +110,8 @@ set_ws_config() {
     dc_name=${dc_name:-v2ray-ws}
     read -p "连接端口(默认80):" dc_port
     dc_port=${dc_port:-80}
+    read -p "服务端口(默认10086):" ser_port
+    dc_port=${ser_port:-10086}
 
     if [ -d "$dc_name" ]; then
         echo "容器名称重复！"
@@ -124,8 +126,8 @@ set_ws_config() {
         wget -O config.json $ws_config
         cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo "config.json OK"
         wget -O docker-compose.yml $docker_ws_config
-        cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo "docker-compose OK"
-        docker-compose up -d && echo $dc_name >>../update && echo "set update OK" && docker-compose logs -f
+        cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo "docker-compose OK"
+        docker-compose up -d && echo $dc_name  && echo "set update OK" && docker-compose logs -f
     else
         echo "输入错误！"
         sleep 3s
