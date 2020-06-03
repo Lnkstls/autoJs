@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.3"
+sh_ver="0.4"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
 
@@ -111,7 +111,7 @@ set_ws_config() {
     read -p "连接端口(默认80):" dc_port
     dc_port=${dc_port:-80}
     read -p "服务端口(默认10086):" ser_port
-    dc_port=${ser_port:-10086}
+    ser_port=${ser_port:-10086}
 
     if [ -d "$dc_name" ]; then
         echo "容器名称重复！"
@@ -197,6 +197,7 @@ ddserver() {
 time_up() {
     timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
     timedatectl
+    start_menu
 }
 start_menu() {
     clear
