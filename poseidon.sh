@@ -2,9 +2,9 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.4"
+sh_ver="0.5"
 
-font_color_up="\033[32m" && font_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
+font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && ifdown="按任意键继续...(按Ctrl+c退出)" && btlink="http://download.bt.cn/install/install_panel.sh" && rmbtlink="http://download.bt.cn/install/bt-uninstall.sh"
 
 update_sh() {
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
@@ -18,7 +18,7 @@ update_sh() {
 			wget -N "${github}/poseidon.sh" && chmod +x poseidon.sh
 			echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
 		else
-			echo && echo "	已取消..." && echo
+			echo && echo "已取消..." && echo
 		fi
 	else
 		echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
@@ -36,10 +36,10 @@ wget_bbr() {
 
 docker_install() {
     if [ ! $(command -v docker) ]; then
-        echo "即将安装docker环境"
+        echo "即将安装docker环境..."
         curl -fsSL https://get.docker.com | bash && curl -L "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && chmod a+x /usr/local/bin/docker-compose && echo "环境安装完成"
         rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc && echo "软链添加完成"
-        systemctl start docker && echo "docker启动成功"
+        systemctl start docker && echo -e "${font_color_up}docker启动成功${font_color_end}"
     fi
     echo "docker install OK"
     if [ ! -e "v2" ]; then
@@ -70,7 +70,7 @@ set_tcp_config() {
     dc_port=${dc_port:-80}
 
     if [ -d "$dc_name" ]; then
-        echo "容器名称重复！"
+        echo -e "${error_color_up}容器名称重复！${error_color_end}"
         sleep 3s
         set_tcp_config
     fi
@@ -79,12 +79,12 @@ set_tcp_config() {
     cd $dc_name
     if [ -n "$webapi" -a -n "$token" ]; then
         wget -O config.json $tcp_config
-        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo "config.json OK"
+        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo -e "${font_color_up}config.json Yes${font_color_end}"
         wget -O docker-compose.yml $docker_tcp_config
         cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo "docker-compose OK"
-        docker-compose up -d && echo $dc_name  && echo "set update OK" && docker-compose logs -f
+        docker-compose up -d && echo $dc_name  && echo -e "${font_color_up}set update Yes${font_color_end}" && docker-compose logs -f
     else
-        echo "输入错误！"
+        echo -e "输入错误！"
         sleep 3s
         set_ws_config
     fi
@@ -114,7 +114,7 @@ set_ws_config() {
     ser_port=${ser_port:-10086}
 
     if [ -d "$dc_name" ]; then
-        echo "容器名称重复！"
+        echo -e "${error_color_up}容器名称重复！${error_color_end}"
         sleep 3s
         set_ws_config
     fi
@@ -124,12 +124,12 @@ set_ws_config() {
     
     if [ -n "$webapi" -a -n "$token" ]; then
         wget -O config.json $ws_config
-        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo "config.json OK"
+        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo -e "${font_color_up}config.json Yes${font_color_end}"
         wget -O docker-compose.yml $docker_ws_config
         cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo "docker-compose OK"
-        docker-compose up -d && echo $dc_name  && echo "set update OK" && docker-compose logs -f
+        docker-compose up -d && echo $dc_name  && echo -e "${font_color_up}set update Yes${font_color_end}" && docker-compose logs -f
     else
-        echo "输入错误！"
+        echo -e "${error_color_up}输入错误！${error_color_end}"
         sleep 3s
         set_ws_config
     fi
@@ -158,7 +158,7 @@ ${font_color_up}0.${font_color_end}返回上一步
         echo "暂不支持！"
         ;;
     *)
-        echo "输入错误！"
+        echo -e "${error_color_up}输入错误！${error_color_end}"
         sleep 3s
         install_poseidon
         ;;
@@ -199,9 +199,19 @@ time_up() {
     timedatectl
     start_menu
 }
+up_crontab() {
+    read -p "每月重启时间(默认1号):" node_id
+    reboot_time=${node_id:-1}
+    if [[ 'crontab -l' = *crontab* ]]; then
+        echo "30 4 ${reboot_time} * * reboot" >> conf && crontab conf && rm -f conf && crontab -l
+    else
+        crontab -l > conf && echo "30 4 ${reboot_time} * * reboot" >> conf && crontab conf && rm -f conf && crontab -l
+    fi
+}
 start_menu() {
     clear
-    echo -e "
+    echo -e "Author: by @Lnkstls
+-----------------------------------------
 ${font_color_up}0.${font_color_end}升级脚本
 -----------------------------------------
 ${font_color_up}1.${font_color_end}下载bbr安装脚本
@@ -214,6 +224,7 @@ ${font_color_up}7.${font_color_end}关闭UFW防火墙
 ${font_color_up}8.${font_color_end}下载快速回程测试脚本
 ${font_color_up}9.${font_color_end}下载一键dd系统脚本
 ${font_color_up}10.${font_color_end}设置上海时区并对齐
+${font_color_up}11.${font_color_end}设置每月定时重启任务
 -----------------------------------------"
     read -p "请输入数字：" num
     case "$num" in
@@ -250,8 +261,11 @@ ${font_color_up}10.${font_color_end}设置上海时区并对齐
     10)
         time_up
         ;;
+    11)
+        up_crontab
+        ;;
     *)
-        echo "输入错误！！！"
+        echo -e "${error_color_up}输入错误！${error_color_end}"
         sleep 3s
         start_menu
         ;;
@@ -267,7 +281,6 @@ server_cmd() {
     if [ ! `command -v unzip` ]; then
         apt install -y unzip
     fi
-    
     if [ ! `command -v curl` ]; then
         apt install -y curl
     fi
