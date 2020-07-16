@@ -17,3 +17,7 @@ python3 GBControl.py #测试系统debian
 -m  # 显示月流量信息
 -t  # 显示流量最高top10天
 ``` 
+## poseidon
+```
+wget raw.githubusercontent.com/Lnkstls/autoJs/master/poseidon.sh && chmod +x ./poseidon.sh && bash ./poseidon.sh
+```
