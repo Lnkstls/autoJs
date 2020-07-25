@@ -51,11 +51,10 @@ update_sh() {
 
 wget_bbr() {
     bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" 
-    if [ -e "./tcp.sh" ]; then
-        ./tcp.sh
-    else
-        wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh && ./tcp.sh
+    if [ ! -e "./tcp.sh" ]; then
+        wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
     fi
+    ./tcp.sh
 }
 
 docker_install() {
@@ -256,6 +255,7 @@ superspeed() {
 start_menu() {
     clear
     echo && echo -e "Author: by @Lnkstls
+当前版本: [${sh_ver}]
 ——————————————————————————————
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
