@@ -1,8 +1,7 @@
 # autoJs
 常用脚本
 
-## 流量控制
-- [GBControl](https://github.com/LnksGit/autoJs/blob/master/GBControl.py)
+## GBControl
 ```
 apt-get -y install vnstat #安装vnstat
 vnstat --iflist #网卡列表
@@ -17,3 +16,8 @@ python3 GBControl.py #测试系统debian
 -m  # 显示月流量信息
 -t  # 显示流量最高top10天
 ``` 
+
+## poseidon
+```
+wget -nc -O poseidon.sh  raw.githubusercontent.com/Lnkstls/autoJs/master/poseidon.sh && chmod +x ./poseidon.sh && bash ./poseidon.sh
+```
