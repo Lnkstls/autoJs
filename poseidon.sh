@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.6"
+sh_ver="0.61"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -14,7 +14,7 @@ os() {
     oss=${lsb_release -a | grep "Distributor" | awk '{print $NF}'}
     release=${lsb_release -a | grep "Release" | awk '{print $NF}'}
     if [ "$arch" = "x86_64" ]; then
-        echo -e "${error}暂不支持 x86_64 以外系统！" && exit 1
+        echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
     
     if [ "$oss" = "Debian" ]; then
@@ -109,7 +109,7 @@ set_tcp_config() {
         cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
         docker-compose up -d && echo $dc_name  && docker-compose logs -f
     else
-        echo -e "${error}输入错误！"
+        echo -e "${error}输入错误 !"
         sleep 3s
         set_ws_config
     fi
@@ -139,7 +139,7 @@ set_ws_config() {
     ser_port=${ser_port:-10086}
 
     if [ -d "$dc_name" ]; then
-        echo -e "${error}容器名称重复！"
+        echo -e "${error}容器名称重复 !"
         sleep 3s
         set_ws_config
     fi
@@ -154,7 +154,7 @@ set_ws_config() {
         cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" > docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
         docker-compose up -d && echo $dc_name  && docker-compose logs -f
     else
-        echo -e "${error}输入错误！"
+        echo -e "${error}输入错误 !"
         sleep 3s
         set_ws_config
     fi
@@ -162,10 +162,11 @@ set_ws_config() {
 
 install_poseidon() {
     echo -e "
+\033[2A
 ${font_color_up}1.${font_color_end}tcp
 ${font_color_up}2.${font_color_end}ws
 ${font_color_up}3.${font_color_end}tls
------------------------------------------
+——————————————————————————————
 ${font_color_up}0.${font_color_end}返回上一步
     "
     read -p "请输入数字:" num
@@ -180,10 +181,10 @@ ${font_color_up}0.${font_color_end}返回上一步
         set_ws_config
         ;;
     3)
-        echo -e "${error}暂不支持！"
+        echo -e "${error}暂不支持 !"
         ;;
     *)
-        echo -e "${error}输入错误！"
+        echo -e "${error}输入错误 !"
         sleep 3s
         install_poseidon
         ;;
@@ -234,13 +235,17 @@ time_up() {
     timedatectl
 }
 
-up_crontab() {
-    read -p "每月重启时间(默认1号):" node_id
-    reboot_time=${node_id:-1}
+up_crontab() {    
+    if [[ 'crontab -l' = *reboot* ]]; then
+        echo -e "${tip}已存在reboot !"
+        crontab -l
+    fi
+    read -p "每月重启时间(分 时 日 月 星期):" reboot_time
+    reboot_time=${reboot_time:-1}
     if [[ 'crontab -l' = *crontab* ]]; then
-        echo "30 4 ${reboot_time} * * reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && crontab -l && echo -e "${info}设置完成"
+        echo "${reboot_time} reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && crontab -l && echo -e "${info}设置完成"
     else
-        crontab -l > conf.$$ && echo "30 4 ${reboot_time} * * reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && echo -e "${info}" && crontab -l
+        crontab -l > conf.$$ && echo "${reboot_time} reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && echo -e "${info}" && crontab -l
     fi
 }
 
@@ -250,6 +255,69 @@ superspeed() {
         wget --no-check-certificate -O superspeed.sh ${superspeed_link} && chmod +x superspeed.sh
     fi
     ./superspeed.sh
+}
+
+speedtest_install() {
+        if [ "$oss" = "Debian" ]; then
+            sudo apt-get install -y gnupg1 apt-transport-https dirmngr
+            export INSTALL_KEY=379CE192D401AB61
+            export DEB_DISTRO=$(lsb_release -sc)
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
+            echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
+            sudo apt-get update
+            sudo apt-get install -y speedtest
+        elif [ "$oss" = "ubuntu" ]; then
+            sudo apt-get install -y gnupg1 apt-transport-https dirmngr
+            export INSTALL_KEY=379CE192D401AB61
+            export DEB_DISTRO=$(lsb_release -sc)
+            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
+            echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
+            sudo apt-get update
+            sudo apt-get install -y speedtest
+        elif [ "$oss" = "centos" ]; then
+            wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
+            sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
+            sudo yum install -y speedtest
+        fi
+        echo -e "${tip}请自行查看是否安装成功 !"
+}
+
+nat() {
+    nat_link="http://arloor.com/sh/iptablesUtils/natcfg.sh"
+    if [ ! -e "nat.sh" ]; then
+        wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
+    fi
+    ./nat.sh
+}
+
+ddns() {
+    ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
+    ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
+    echo -e "
+\033[2A
+${font_color_up}1.${font_color_end} 外网获取ip
+${font_color_up}2.${font_color_end} 网卡获取
+——————————————————————————————"
+    read -p "请输入数字:" ddns_re
+    case "$ddna_re" in
+    1)
+        if [ ! -e "ddns.sh" ]; then
+            wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
+        fi
+        ./ddns.sh
+    ;;
+    1)
+        if [ ! -e "ddns_line.sh" ]; then
+            wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
+        fi
+        ./ddns_line.sh
+    ;;
+    *)
+        echo "${error}输入错误 !"
+        sleep 3s
+        ddns
+    ;;
+    esac
 }
 
 start_menu() {
@@ -271,6 +339,9 @@ ${font_color_up}9.${font_color_end} 下载一键dd系统脚本
 ${font_color_up}10.${font_color_end} 设置上海时区并对齐
 ${font_color_up}11.${font_color_end} 设置每月定时重启任务
 ${font_color_up}12.${font_color_end} 下载国内测速脚本(Superspeed)
+${font_color_up}13.${font_color_end} 安装speedtest
+${font_color_up}14.${font_color_end} 下载nat脚本
+${font_color_up}15.${font_color_end} 下载ddns脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
     read -p "请输入数字：" num
@@ -314,15 +385,24 @@ Ctrl+C 退出" && echo
     12)
         superspeed
         ;;
+    13)
+        speedtest_install
+        ;;
+    14)
+        nat
+        ;;
+    15)
+        ddns
+        ;;
     *)
-        echo -e "${error}输入错误！"
+        echo -e "${error}输入错误 !"
         sleep 3s
         start_menu
         ;;
     esac
 }
 server_cmd() {
-    echo -e "${info}安装支持 wget vim unzip curl"
+    echo -e "${info}安装依赖 wget vim unzip curl"
     if [ ! `command -v wget` ]; then
         ${commad} install -y wget
     fi
