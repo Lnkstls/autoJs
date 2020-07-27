@@ -45,6 +45,7 @@ update_sh() {
 	else
 		echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
 		sleep 5s
+        start_menu
 	fi
 }
 
