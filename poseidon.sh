@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.61"
+sh_ver="0.62"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -11,8 +11,8 @@ tip="\033[33m [注意]: \033[0m"
 
 os() {
     arch='uname -m'
-    oss=${lsb_release -a | grep "Distributor" | awk '{print $NF}'}
-    release=${lsb_release -a | grep "Release" | awk '{print $NF}'}
+    oss=$(lsb_release -a | grep "Distributor" | awk '{print $NF}')
+    release=$(lsb_release -a | grep "Release" | awk '{print $NF}')
     if [ "$arch" = "x86_64" ]; then
         echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
@@ -27,6 +27,7 @@ os() {
         commad="apt"
     fi
 }
+os
 
 update_sh() {
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
@@ -60,14 +61,13 @@ wget_bbr() {
 
 docker_install() {
     if [ ! $(command -v docker) ]; then
-        echo "${info}开始安装docker..."
-        curl -fsSL https://get.docker.com
+        echo -e "${info}开始安装docker..."
+        curl -fsSL https://get.docker.com | bash
         curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod a+x /usr/local/bin/docker-compose
-        rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc > /dev/null 2>$1
-        systemctl start docker > /dev/null
+        rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc > /dev/null
+        systemctl start docker > /dev/null && echo -e "${info}docker安装完成"
     fi
-    echo "${info}docker安装完成"
     if [ ! -e "v2" ]; then
         mkdir v2
     fi
@@ -105,7 +105,7 @@ set_tcp_config() {
     cd $dc_name
     if [ -n "$webapi" -a -n "$token" ]; then
         wget -nv -O config.json $tcp_config
-        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo -e "config.json yes"
+        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
         wget -O docker-compose.yml $docker_tcp_config
         cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
         docker-compose up -d && echo $dc_name  && docker-compose logs -f
@@ -150,7 +150,7 @@ set_ws_config() {
     
     if [ -n "$webapi" -a -n "$token" ]; then
         wget -O config.json $ws_config
-        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json && echo -e "config.json yes"
+        cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
         wget -O docker-compose.yml $docker_ws_config
         cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" > docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
         docker-compose up -d && echo $dc_name  && docker-compose logs -f
@@ -211,7 +211,8 @@ dis_ufw() {
 update_poseidon() {
     docker pull v2cc/poseidon && echo -e "${info}拉取完成"
     # docker ps -a | grep "-" | awk '{print $NF}' | docker restart && echo "update Yes"
-    docker ps -a -q | docker restart && echo -e "${info}更新完成"
+    docker restart $(docker ps -a -q) &> /dev/null && echo -e "${info}更新完成"
+    
 }
 de_routing() {
     if [ ! -e "besttrace.sh" ]; then
@@ -321,6 +322,15 @@ ${font_color_up}2.${font_color_end} 网卡获取
     esac
 }
 
+cf_iptable() {
+    read -p "Cloudflare Email:" cf_mail
+    cf_mail=${cf_mail:-0}
+    read -p "Cloudflare Email:" cf_mail
+    cf_mail=${cf_mail:-0}
+    read -p "Cloudflare Email:" cf_mail
+    cf_mail=${cf_mail:-0}
+}
+
 start_menu() {
     clear
     echo && echo -e "Author: by @Lnkstls
@@ -404,6 +414,7 @@ Ctrl+C 退出" && echo
 }
 server_cmd() {
     echo -e "${info}安装依赖 wget vim unzip curl"
+    ${commad} update
     if [ ! `command -v wget` ]; then
         ${commad} install -y wget
     fi
