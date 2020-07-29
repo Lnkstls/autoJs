@@ -17,11 +17,11 @@ os() {
         echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
     
-    if [ "$oss" = "Debian" ]; then
+    if [ "${oss}" = "Debian" ]; then
         commad="apt"
-    elif [ "$oss" = "ubuntu" ]; then
+    elif [ "${oss}" = "ubuntu" ]; then
         commad="apt"
-    elif [ "$oss" = "centos" ]; then
+    elif [ "${oss}" = "centos" ]; then
         commad="yum"
     else
         commad="apt"
@@ -414,7 +414,9 @@ Ctrl+C 退出" && echo
 }
 server_cmd() {
     echo -e "${info}安装依赖 wget vim unzip curl"
-    ${commad} update
+    if [ ! -e "poseidon.log" ]; then
+        ${commad} update && echo "1" > poseidon.log
+    fi
     if [ ! `command -v wget` ]; then
         ${commad} install -y wget
     fi
