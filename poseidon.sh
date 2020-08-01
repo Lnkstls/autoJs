@@ -260,28 +260,21 @@ superspeed() {
 }
 
 speedtest_install() {
-        if [ "$oss" = "Debian" ]; then
+        if [ "$oss" = "ubuntu" ] || [ "$oss" = "Debian" ]; then
             sudo apt-get install -y gnupg1 apt-transport-https dirmngr
             export INSTALL_KEY=379CE192D401AB61
             export DEB_DISTRO=$(lsb_release -sc)
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
             echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
-            sudo apt-get update
-            sudo apt-get install -y speedtest
-        elif [ "$oss" = "ubuntu" ]; then
-            sudo apt-get install -y gnupg1 apt-transport-https dirmngr
-            export INSTALL_KEY=379CE192D401AB61
-            export DEB_DISTRO=$(lsb_release -sc)
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
-            echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
-            sudo apt-get update
-            sudo apt-get install -y speedtest
+            sudo apt-get install -y speedtest && echo -e "${tip}安装完成 !"
         elif [ "$oss" = "centos" ]; then
             wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
             sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
-            sudo yum install -y speedtest
+            sudo yum install -y speedtest && echo -e "${tip}安装完成 !"
+        else
+            echo -e "${error}不支持的系统 !" && exit 1
         fi
-        echo -e "${tip}请自行查看是否安装成功 !"
+        speedtest
 }
 
 nat() {
@@ -413,21 +406,26 @@ Ctrl+C 退出" && echo
     esac
 }
 server_cmd() {
+    if [ ! `command -v sudo` ]; then
+        echo -e "${info}安装依赖 sudo"
+        $commad install -y sudo
+    fi
+    sudo -i
     echo -e "${info}安装依赖 wget vim unzip curl"
     if [ ! -e "poseidon.log" ]; then
-        ${commad} update && echo "1" > poseidon.log
+        $commad update && echo "1" > poseidon.log
     fi
     if [ ! `command -v wget` ]; then
-        ${commad} install -y wget
+        $commad install -y wget
     fi
     if [ ! `command -v vim` ]; then
-        ${commad} install -y vim
+        $commad install -y vim
     fi
     if [ ! `command -v unzip` ]; then
-        ${commad} install -y unzip
+        $commad install -y unzip
     fi
     if [ ! `command -v curl` ]; then
-        ${commad} install -y curl
+        $commad install -y curl
     fi
 }
 server_cmd
