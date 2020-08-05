@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.62"
+sh_ver="0.63"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -11,8 +11,8 @@ note="\033[33m [注意]: \033[0m"
 
 os() {
     arch='uname -m'
-    oss=$(lsb_release -a | grep "Distributor" | awk '{print $NF}')
-    release=$(lsb_release -a | grep "Release" | awk '{print $NF}')
+    oss=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
+    release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
     if [ "$arch" = "x86_64" ]; then
         echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
@@ -79,7 +79,6 @@ docker_install() {
 set_tcp_config() {
     tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
     docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
-    docker_install
     read -p "节点id(默认1):" node_id
     node_id=${node_id:-1}
     read -p "webapi(必填):" webapi
@@ -121,7 +120,7 @@ set_tcp_config() {
 set_ws_config() {
     ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
     docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
-    docker_install
+    
     read -p "节点id(默认1):" node_id
     node_id=${node_id:-1}
     read -p "webapi(必填):" webapi
@@ -163,6 +162,7 @@ set_ws_config() {
 }
 
 install_poseidon() {
+    docker_install
     echo -e "
 \033[2A
 ${font_color_up}1.${font_color_end}tcp
