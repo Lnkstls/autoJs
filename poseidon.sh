@@ -7,7 +7,7 @@ sh_ver="0.62"
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
-tip="\033[33m [注意]: \033[0m"
+note="\033[33m [注意]: \033[0m"
 
 os() {
     arch='uname -m'
@@ -24,6 +24,7 @@ os() {
     elif [ "${oss}" = "centos" ]; then
         commad="yum"
     else
+        echo -e "${info}不支持的系统 !"
         commad="apt"
     fi
 }
@@ -239,7 +240,7 @@ time_up() {
 
 up_crontab() {    
     if [[ 'crontab -l' = *reboot* ]]; then
-        echo -e "${tip}已存在reboot !"
+        echo -e "${note}已存在reboot !"
         crontab -l
     fi
     read -p "每月重启时间(分 时 日 月 星期):" reboot_time
@@ -260,21 +261,22 @@ superspeed() {
 }
 
 speedtest_install() {
-        if [ "$oss" = "ubuntu" ] || [ "$oss" = "Debian" ]; then
+        if [ "$oss" = "Debian" ] || [ "$oss" = "ubuntu" ]; then
             sudo apt-get install -y gnupg1 apt-transport-https dirmngr
             export INSTALL_KEY=379CE192D401AB61
             export DEB_DISTRO=$(lsb_release -sc)
             sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
             echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
-            sudo apt-get install -y speedtest && echo -e "${tip}安装完成 !"
+            sudo apt-get update
+            sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
         elif [ "$oss" = "centos" ]; then
             wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
             sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
-            sudo yum install -y speedtest && echo -e "${tip}安装完成 !"
+            sudo yum install -y speedtest && echo -e "${info}安装完成 !"
         else
-            echo -e "${error}不支持的系统 !" && exit 1
+            echo -e "${error}不受支持的系统 !"
         fi
-        speedtest
+        
 }
 
 nat() {
@@ -406,26 +408,29 @@ Ctrl+C 退出" && echo
     esac
 }
 server_cmd() {
+    if [ ! -e "poseidon.log" ]; then
+        echo -e "${info}更新列表 update"
+        ${commad} update && echo "1" > poseidon.log
+    fi
     if [ ! `command -v sudo` ]; then
         echo -e "${info}安装依赖 sudo"
-        $commad install -y sudo
-    fi
-    sudo -i
-    echo -e "${info}安装依赖 wget vim unzip curl"
-    if [ ! -e "poseidon.log" ]; then
-        $commad update && echo "1" > poseidon.log
+        ${commad} install -y sudo
     fi
     if [ ! `command -v wget` ]; then
-        $commad install -y wget
+        echo -e "${info}安装依赖 wget"
+        ${commad} install -y wget
     fi
     if [ ! `command -v vim` ]; then
-        $commad install -y vim
+        echo -e "${info}安装依赖 vim"
+        ${commad} install -y vim
     fi
     if [ ! `command -v unzip` ]; then
-        $commad install -y unzip
+        echo -e "${info}安装依赖 unzip"
+        ${commad} install -y unzip
     fi
     if [ ! `command -v curl` ]; then
-        $commad install -y curl
+        echo -e "${info}安装依赖 curl"
+        ${commad} install -y curl
     fi
 }
 server_cmd
