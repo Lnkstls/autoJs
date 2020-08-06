@@ -4,7 +4,7 @@ export PATH
 
 sh_ver="0.64"
 
-font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
+font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m [注意]: \033[0m"
@@ -31,6 +31,7 @@ os() {
 os
 
 update_sh() {
+    github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
 	sh_new_ver=$(wget -qO- "${github}/poseidon.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
 	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
@@ -39,7 +40,7 @@ update_sh() {
 		read -p "(默认: y):" yn
 		[[ -z "${yn}" ]] && yn="y"
 		if [[ ${yn} == [Yy] ]]; then
-			wget -N "${github}/poseidon.sh" && chmod +x poseidon.sh
+			wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
 			echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
 		else
 			echo && echo "${info}已取消..." && echo
