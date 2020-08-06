@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.64"
+sh_ver="0.65"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -17,11 +17,9 @@ os() {
         echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
     
-    if [ "${oss}" = "Debian" ]; then
+    if [ "${oss}" = "Debian" ] || [ "${oss}" = "Ubuntu" ]; then
         commad="apt"
-    elif [ "${oss}" = "ubuntu" ]; then
-        commad="apt"
-    elif [ "${oss}" = "centos" ]; then
+    elif [ "${oss}" = "Centos" ]; then
         commad="yum"
     else
         echo -e "${info}不支持的系统 !"
@@ -262,7 +260,7 @@ superspeed() {
 }
 
 speedtest_install() {
-        if [ "$oss" = "Debian" ] || [ "$oss" = "ubuntu" ]; then
+        if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
             sudo apt-get install -y gnupg1 apt-transport-https dirmngr
             export INSTALL_KEY=379CE192D401AB61
             export DEB_DISTRO=$(lsb_release -sc)
@@ -270,7 +268,7 @@ speedtest_install() {
             echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
             sudo apt-get update
             sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
-        elif [ "$oss" = "centos" ]; then
+        elif [ "$oss" = "Centos" ]; then
             wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
             sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
             sudo yum install -y speedtest && echo -e "${info}安装完成 !"
