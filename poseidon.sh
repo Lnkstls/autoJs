@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.65"
+sh_ver="0.66"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -16,7 +16,6 @@ os() {
     if [ "$arch" = "x86_64" ]; then
         echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
     fi
-    
     if [ "${oss}" = "Debian" ] || [ "${oss}" = "Ubuntu" ]; then
         commad="apt"
     elif [ "${oss}" = "Centos" ]; then
@@ -28,31 +27,162 @@ os() {
 }
 os
 
+parameter() {
+    for par in $*; do
+        case "$par" in
+        cn)
+            if [ "$oss" = "Debian" ]; then
+                cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
+                case $release in
+                8)
+                    echo -e "${info}写入debian8 !"
+                    echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
+deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
+                    ;;
+                9)
+                    echo -e "${info}写入debian9 !"
+                    echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
+                    ;;
+                *)
+                    echo -e "${note}未匹配系统，默认写入debian9 !"
+                    echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+#deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+#deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
+                    ;;
+                esac
+            elif [ "$oss" = "Ubuntu" ]; then
+                cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
+                case $release in
+                14.04)
+                    echo -e "${info}写入ubuntu14.04 !"
+                    echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse" >/etc/apt/sources.list
+                    ;;
+                16.04)
+                    echo -e "${info}写入ubuntu16.04 !"
+                    echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+                    ;;
+                *)
+                    echo -e "${note}未匹配系统，默认写入ubuntu16.4 !"
+                    echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+                    ;;
+                esac
+            elif [ "$oss" = "Centos" ]; then
+                cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
+                case $release in
+                7)
+                    echo -e "${info}未匹配系统，默认写入centos7 !"
+                    wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
+                    ;;
+                8)
+                    echo -e "${info}未匹配系统，默认写入centos7 !"
+                    wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
+                    ;;
+                *)
+                    echo -e "${note}未匹配系统，默认写入centos8 !"
+                    wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
+                    ;;
+                esac
+            else
+                echo -e "${error}不受支持的系统 !"
+            fi
+            ;;
+        ret)
+            if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
+                if [ -e "/etc/apt/sources.list.bakup" ]; then
+                    cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
+                else
+                    echo -e "${error}未找到备份 !"
+                fi
+            elif [ "$oss" = "Centos" ]; then
+                if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
+                    cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
+                else
+                    echo -e "${error}未找到备份 !"
+                fi
+            else
+                echo -e "${error}不受支持的系统 !"
+            fi
+            ;;
+        *)
+            echo -e "${note}错误参数 !"
+            ;;
+        esac
+    done
+}
+if (($# > 0)); then
+    parameter $*
+    sleep 5s
+fi
+
 update_sh() {
     github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-	sh_new_ver=$(wget -qO- "${github}/poseidon.sh"|grep 'sh_ver="'|awk -F "=" '{print $NF}'|sed 's/\"//g'|head -1)
-	[[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
+    sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+    [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
     if [[ ${sh_new_ver} != ${sh_ver} ]]; then
-		echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-		read -p "(默认: y):" yn
-		[[ -z "${yn}" ]] && yn="y"
-		if [[ ${yn} == [Yy] ]]; then
-			wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
-			echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
-		else
-			echo && echo "${info}已取消..." && echo
-		fi
-	else
-		echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
-		sleep 5s
+        echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+        read -p "(默认: y):" yn
+        [[ -z "${yn}" ]] && yn="y"
+        if [[ ${yn} == [Yy] ]]; then
+            wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
+            echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
+        else
+            echo && echo "${info}已取消..." && echo
+        fi
+    else
+        echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
+        sleep 5s
         start_menu
-	fi
+    fi
 }
 
-
 wget_bbr() {
-    bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" 
+    bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
     if [ ! -e "./tcp.sh" ]; then
         wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
     fi
@@ -65,15 +195,14 @@ docker_install() {
         curl -fsSL https://get.docker.com | bash
         curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod a+x /usr/local/bin/docker-compose
-        rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc > /dev/null
-        systemctl start docker > /dev/null && echo -e "${info}docker安装完成"
+        rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
+        systemctl start docker >/dev/null && echo -e "${info}docker安装完成"
     fi
     if [ ! -e "v2" ]; then
         mkdir v2
     fi
     cd v2
 }
-
 
 set_tcp_config() {
     tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
@@ -99,7 +228,7 @@ set_tcp_config() {
         sleep 3s
         set_tcp_config
     fi
-    
+
     mkdir $dc_name
     cd $dc_name
     if [ -n "$webapi" -a -n "$token" ]; then
@@ -107,7 +236,7 @@ set_tcp_config() {
         cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
         wget -O docker-compose.yml $docker_tcp_config
         cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
-        docker-compose up -d && echo $dc_name  && docker-compose logs -f
+        docker-compose up -d && echo $dc_name && docker-compose logs -f
     else
         echo -e "${error}输入错误 !"
         sleep 3s
@@ -115,11 +244,10 @@ set_tcp_config() {
     fi
 }
 
-
 set_ws_config() {
     ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
     docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
-    
+
     read -p "节点id(默认1):" node_id
     node_id=${node_id:-1}
     read -p "webapi(必填):" webapi
@@ -143,16 +271,16 @@ set_ws_config() {
         sleep 3s
         set_ws_config
     fi
-    
+
     mkdir $dc_name
     cd $dc_name
-    
+
     if [ -n "$webapi" -a -n "$token" ]; then
         wget -O config.json $ws_config
         cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
         wget -O docker-compose.yml $docker_ws_config
-        cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" > docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
-        docker-compose up -d && echo $dc_name  && docker-compose logs -f
+        cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
+        docker-compose up -d && echo $dc_name && docker-compose logs -f
     else
         echo -e "${error}输入错误 !"
         sleep 3s
@@ -203,7 +331,7 @@ rm_bt() {
 }
 install_hot() {
     hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
-    wget --no-check-certificate -O status.sh ${hot_link}   && chmod +x status.sh && ./status.sh c
+    wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 dis_ufw() {
     ufw disable && ufw reset && echo -e "${info}关闭完成"
@@ -211,8 +339,8 @@ dis_ufw() {
 update_poseidon() {
     docker pull v2cc/poseidon && echo -e "${info}拉取完成"
     # docker ps -a | grep "-" | awk '{print $NF}' | docker restart && echo "update Yes"
-    docker restart $(docker ps -a -q) &> /dev/null && echo -e "${info}更新完成"
-    
+    docker restart $(docker ps -a -q) &>/dev/null && echo -e "${info}更新完成"
+
 }
 de_routing() {
     if [ ! -e "besttrace.sh" ]; then
@@ -224,20 +352,20 @@ de_routing() {
 ddserver() {
     dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
     if [ ! -e "dd-gd.sh" ]; then
-        wget --no-check-certificate -O dd-gd.sh ${dd_link}  && chmod +x dd-gd.sh
+        wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
     fi
     ./dd-gd.sh
 }
 
 time_up() {
-    if [ ! `command -v ntpdate` ]; then
+    if [ ! $(command -v ntpdate) ]; then
         ${commad} install -y ntpdate
     fi
     timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
     timedatectl
 }
 
-up_crontab() {    
+up_crontab() {
     if [[ 'crontab -l' = *reboot* ]]; then
         echo -e "${note}已存在reboot !"
         crontab -l
@@ -245,37 +373,40 @@ up_crontab() {
     read -p "每月重启时间(分 时 日 月 星期):" reboot_time
     reboot_time=${reboot_time:-1}
     if [[ 'crontab -l' = *crontab* ]]; then
-        echo "${reboot_time} reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && crontab -l && echo -e "${info}设置完成"
+        echo "${reboot_time} reboot" >>conf.$$ && crontab conf.$$ && rm -f conf.$$ && crontab -l && echo -e "${info}设置完成"
     else
-        crontab -l > conf.$$ && echo "${reboot_time} reboot" >> conf.$$ && crontab conf.$$ && rm -f conf.$$ && echo -e "${info}" && crontab -l
+        crontab -l >conf.$$ && echo "${reboot_time} reboot" >>conf.$$ && crontab conf.$$ && rm -f conf.$$ && echo -e "${info}" && crontab -l
     fi
 }
 
 superspeed() {
+    if [ ! $(command -v screen) ]; then
+        echo -e "${info}安装依赖 screen"
+    fi
     superspeed_link="https://git.io/superspeed"
-    if [ -e "superspeed.sh" ]; then
+    if [ ! -e "superspeed.sh" ]; then
         wget --no-check-certificate -O superspeed.sh ${superspeed_link} && chmod +x superspeed.sh
     fi
     ./superspeed.sh
 }
 
 speedtest_install() {
-        if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
-            sudo apt-get install -y gnupg1 apt-transport-https dirmngr
-            export INSTALL_KEY=379CE192D401AB61
-            export DEB_DISTRO=$(lsb_release -sc)
-            sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
-            echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee  /etc/apt/sources.list.d/speedtest.list
-            sudo apt-get update
-            sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
-        elif [ "$oss" = "Centos" ]; then
-            wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
-            sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
-            sudo yum install -y speedtest && echo -e "${info}安装完成 !"
-        else
-            echo -e "${error}不受支持的系统 !"
-        fi
-        
+    if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
+        sudo apt-get install -y gnupg1 apt-transport-https dirmngr
+        export INSTALL_KEY=379CE192D401AB61
+        export DEB_DISTRO=$(lsb_release -sc)
+        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
+        echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
+        sudo apt-get update
+        sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
+    elif [ "$oss" = "Centos" ]; then
+        wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
+        sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
+        sudo yum install -y speedtest && echo -e "${info}安装完成 !"
+    else
+        echo -e "${error}不受支持的系统 !"
+    fi
+
 }
 
 nat() {
@@ -301,18 +432,18 @@ ${font_color_up}2.${font_color_end} 网卡获取
             wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
         fi
         ./ddns.sh
-    ;;
+        ;;
     1)
         if [ ! -e "ddns_line.sh" ]; then
             wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
         fi
         ./ddns_line.sh
-    ;;
+        ;;
     *)
         echo "${error}输入错误 !"
         sleep 3s
         ddns
-    ;;
+        ;;
     esac
 }
 
@@ -409,25 +540,26 @@ Ctrl+C 退出" && echo
 server_cmd() {
     if [ ! -e "poseidon.log" ]; then
         echo -e "${info}更新列表 update"
-        ${commad} update && echo "1" > poseidon.log
+        $oss clean all
+        ${commad} update && echo "1" >poseidon.log
     fi
-    if [ ! `command -v sudo` ]; then
+    if [ ! $(command -v sudo) ]; then
         echo -e "${info}安装依赖 sudo"
         ${commad} install -y sudo
     fi
-    if [ ! `command -v wget` ]; then
+    if [ ! $(command -v wget) ]; then
         echo -e "${info}安装依赖 wget"
         ${commad} install -y wget
     fi
-    if [ ! `command -v vim` ]; then
+    if [ ! $(command -v vim) ]; then
         echo -e "${info}安装依赖 vim"
         ${commad} install -y vim
     fi
-    if [ ! `command -v unzip` ]; then
+    if [ ! $(command -v unzip) ]; then
         echo -e "${info}安装依赖 unzip"
         ${commad} install -y unzip
     fi
-    if [ ! `command -v curl` ]; then
+    if [ ! $(command -v curl) ]; then
         echo -e "${info}安装依赖 curl"
         ${commad} install -y curl
     fi
