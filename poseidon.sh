@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.63"
+sh_ver="0.64"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m" && github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/" && ifdown="按任意键继续...(按Ctrl+c退出)"
 info="${font_color_up}[提示]: ${font_color_end}"
