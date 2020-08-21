@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.66"
+sh_ver="0.67"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -26,6 +26,11 @@ os() {
     fi
 }
 os
+upcs() {
+    echo -e "${info}更新列表 update"
+    $oss clean all
+    ${commad} update && echo -e "${info} 更新完成 !"
+}
 
 parameter() {
     for par in $*; do
@@ -130,6 +135,7 @@ deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted 
             else
                 echo -e "${error}不受支持的系统 !"
             fi
+            rm -f poseidon.log
             ;;
         ret)
             if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
@@ -539,9 +545,8 @@ Ctrl+C 退出" && echo
 }
 server_cmd() {
     if [ ! -e "poseidon.log" ]; then
-        echo -e "${info}更新列表 update"
-        $oss clean all
-        ${commad} update && echo "1" >poseidon.log
+        upcs
+        echo "1" >poseidon.log
     fi
     if [ ! $(command -v sudo) ]; then
         echo -e "${info}安装依赖 sudo"
