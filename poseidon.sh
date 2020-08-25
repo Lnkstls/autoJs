@@ -2,12 +2,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.68"
+sh_ver="0.69"
+uplist=0
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
-note="\033[33m [注意]: \033[0m"
+note="\033[33m[注意]: \033[0m"
 
 os() {
     arch='uname -m'
@@ -28,7 +29,6 @@ os() {
 os
 upcs() {
     echo -e "${info}更新列表 update"
-    $oss clean all
     ${commad} update && echo -e "${info} 更新完成 !"
 }
 
@@ -141,12 +141,14 @@ deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted 
             if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
                 if [ -e "/etc/apt/sources.list.bakup" ]; then
                     cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
+                    upcs
                 else
                     echo -e "${error}未找到备份 !"
                 fi
             elif [ "$oss" = "Centos" ]; then
                 if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
                     cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
+                    upcs
                 else
                     echo -e "${error}未找到备份 !"
                 fi
@@ -416,7 +418,7 @@ speedtest_install() {
 }
 
 nat() {
-    nat_link="http://arloor.com/sh/iptablesUtils/natcfg.sh"
+    nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
     if [ ! -e "nat.sh" ]; then
         wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
     fi
@@ -544,10 +546,10 @@ Ctrl+C 退出" && echo
     esac
 }
 server_cmd() {
-    if [ ! -e "poseidon.log" ]; then
-        upcs
-        echo "1" >poseidon.log
-    fi
+    # if [ ! -e "poseidon.log" ]; then
+    #     upcs
+    #     echo "1" >poseidon.log
+    # fi
     if [ ! $(command -v sudo) ]; then
         echo -e "${info}安装依赖 sudo"
         ${commad} install -y sudo
