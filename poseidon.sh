@@ -432,7 +432,7 @@ ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
     read -p "请输入数字:" ddns_re
-    case "$ddna_re" in
+    case "$ddns_re" in
     1)
         if [ ! -e "ddns.sh" ]; then
             wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
