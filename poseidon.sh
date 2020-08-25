@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.67"
+sh_ver="0.68"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -439,7 +439,7 @@ ${font_color_up}2.${font_color_end} 网卡获取
         fi
         ./ddns.sh
         ;;
-    1)
+    2)
         if [ ! -e "ddns_line.sh" ]; then
             wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
         fi
