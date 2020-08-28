@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.69"
+sh_ver="0.70"
 uplist=0
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
@@ -439,13 +439,18 @@ ${font_color_up}2.${font_color_end} 网卡获取
         if [ ! -e "ddns.sh" ]; then
             wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
         fi
-        ./ddns.sh
+        read -p "请输入APP_ID:" APP_ID
+        read -p "请输入APP_Token:" APP_Token
+        read -p "请输入domain:" domain
+        read -p "请输入host:" host
+        read -p "请输入ttl(默认600):" ttl
+        ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
         ;;
     2)
         if [ ! -e "ddns_line.sh" ]; then
             wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
         fi
-        ./ddns_line.sh
+        vim ddns_line.sh
         ;;
     *)
         echo "${error}输入错误 !"
