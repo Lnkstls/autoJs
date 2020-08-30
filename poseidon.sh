@@ -2,8 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.70"
-uplist=0
+sh_ver="0.71"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -30,6 +29,10 @@ os
 upcs() {
     echo -e "${info}更新列表 update"
     ${commad} update && echo -e "${info} 更新完成 !"
+}
+
+add_crontab() {
+	crontab -l >$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
 }
 
 parameter() {
@@ -157,20 +160,20 @@ deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted 
             fi
             ;;
         *)
-            echo -e "${note}错误参数 !"
+            echo -e "${note}错误参数 !
+            cn 使用腾讯云镜像
+            ret 恢复镜像备份"
             ;;
         esac
+        sleep 5s
     done
 }
-if (($# > 0)); then
-    parameter $*
-    sleep 5s
-fi
+parameter
 
 update_sh() {
-    github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
+    local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
     echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-    sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+    local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
     [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
     if [[ ${sh_new_ver} != ${sh_ver} ]]; then
         echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
@@ -190,7 +193,7 @@ update_sh() {
 }
 
 wget_bbr() {
-    bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
+    local bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
     if [ ! -e "./tcp.sh" ]; then
         wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
     fi
@@ -213,8 +216,8 @@ docker_install() {
 }
 
 set_tcp_config() {
-    tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
-    docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
+    local tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
+    local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
     read -p "节点id(默认1):" node_id
     node_id=${node_id:-1}
     read -p "webapi(必填):" webapi
@@ -253,8 +256,8 @@ set_tcp_config() {
 }
 
 set_ws_config() {
-    ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
-    docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
+    local ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
+    local docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
 
     read -p "节点id(默认1):" node_id
     node_id=${node_id:-1}
@@ -330,15 +333,15 @@ ${font_color_up}0.${font_color_end}返回上一步
 }
 
 install_bt() {
-    bt_link="http://download.bt.cn/install/install_panel.sh"
+    local bt_link="http://download.bt.cn/install/install_panel.sh"
     curl -sSO ${bt_link} && bash install_panel.sh
 }
 rm_bt() {
-    rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
+    local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
     wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link} && bash bt_uninstall.sh
 }
 install_hot() {
-    hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
+    local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
     wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 dis_ufw() {
@@ -358,7 +361,7 @@ de_routing() {
 }
 
 ddserver() {
-    dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
+    local dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
     if [ ! -e "dd-gd.sh" ]; then
         wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
     fi
@@ -373,18 +376,14 @@ time_up() {
     timedatectl
 }
 
-up_crontab() {
+reboot_time() {
     if [[ 'crontab -l' = *reboot* ]]; then
         echo -e "${note}已存在reboot !"
         crontab -l
     fi
-    read -p "每月重启时间(分 时 日 月 星期):" reboot_time
-    reboot_time=${reboot_time:-1}
-    if [[ 'crontab -l' = *crontab* ]]; then
-        echo "${reboot_time} reboot" >>conf.$$ && crontab conf.$$ && rm -f conf.$$ && crontab -l && echo -e "${info}设置完成"
-    else
-        crontab -l >conf.$$ && echo "${reboot_time} reboot" >>conf.$$ && crontab conf.$$ && rm -f conf.$$ && echo -e "${info}" && crontab -l
-    fi
+    read -p "每月重启时间(分 时 日 月 星期):" rt_time
+    rt_time=${reboot_time:-1}
+    add_crontab "${rt_time} bash reboot"
 }
 
 superspeed() {
@@ -418,7 +417,7 @@ speedtest_install() {
 }
 
 nat() {
-    nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
+    local nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
     if [ ! -e "nat.sh" ]; then
         wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
     fi
@@ -426,8 +425,8 @@ nat() {
 }
 
 ddns() {
-    ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
-    ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
+    local ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
+    local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
     echo -e "
 \033[2A
 ${font_color_up}1.${font_color_end} 外网获取ip
@@ -445,6 +444,7 @@ ${font_color_up}2.${font_color_end} 网卡获取
         read -p "请输入host:" host
         read -p "请输入ttl(默认600):" ttl
         ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
+        add_crontab "* * * * * bash $(pwd)/ddns.sh >$(pwd)/ddns.log"
         ;;
     2)
         if [ ! -e "ddns_line.sh" ]; then
@@ -529,7 +529,7 @@ Ctrl+C 退出" && echo
         time_up
         ;;
     11)
-        up_crontab
+        reboot_time
         ;;
     12)
         superspeed
@@ -551,10 +551,10 @@ Ctrl+C 退出" && echo
     esac
 }
 server_cmd() {
-    # if [ ! -e "poseidon.log" ]; then
-    #     upcs
-    #     echo "1" >poseidon.log
-    # fi
+     if [ ! -e "poseidon.log" ]; then
+         upcs
+         echo "1" >poseidon.log
+    fi
     if [ ! $(command -v sudo) ]; then
         echo -e "${info}安装依赖 sudo"
         ${commad} install -y sudo
