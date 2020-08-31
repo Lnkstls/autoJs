@@ -2,12 +2,16 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.71"
+sh_ver="0.72"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[注意]: \033[0m"
+
+if (( $EUID != 0 )); then
+  echo -e "${error}仅在root环境下测试通过 !" && exit 1
+fi
 
 os() {
   if [ $(command -v lsb_release) ]; then
