@@ -2,12 +2,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.74"
+sh_ver="0.75"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
-note="\033[33m[注意]: \033[0m"
+note="\033[33m[警告]: \033[0m"
+fder="./JsSet"
 
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试通过 !" && exit 1
@@ -127,7 +128,7 @@ parameter() {
           ;;
         esac
       elif [ "$oss" = "CentOS" ]; then
-        cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup 
+        cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
         case $release in
         7)
           echo -e "${info}未匹配系统，默认写入centos7 !"
@@ -195,6 +196,7 @@ update_sh() {
 }
 
 wget_bbr() {
+  cd $fder
   local bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
   if [ ! -e "./tcp.sh" ]; then
     wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
@@ -338,27 +340,34 @@ ${font_color_up}0.${font_color_end}返回上一步
 }
 
 install_bt() {
+  cd $fder
   local bt_link="http://download.bt.cn/install/install_panel.sh"
   curl -sSO ${bt_link} && bash install_panel.sh
 }
 rm_bt() {
+  cd $fder
   local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
   wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link} && bash bt_uninstall.sh
 }
 install_hot() {
+  cd $fder
   local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
   wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 dis_ufw() {
+  cd $fder
   ufw disable && ufw reset && echo -e "${info}关闭完成"
 }
 update_poseidon() {
-  docker pull v2cc/poseidon && echo -e "${info}拉取完成"
-  # docker ps -a | grep "-" | awk '{print $NF}' | docker restart && echo "update Yes"
-  docker restart $(docker ps -a -q) &>/dev/null && echo -e "${info}更新完成"
-
+  if [[ $(docker pull v2cc/poseidon:latest) = *"Image is up to date"* ]]; then
+    docker images --digests
+    echo -e "${info}已是最新版本 !"
+  else
+    docker restart $(docker ps -aq) && echo -e "${info}更新完成 !"
+  fi
 }
 de_routing() {
+  cd $fder
   if [ ! -e "fastbesttrace.sh" ]; then
     wget --no-check-certificate -O fastbesttrace.sh git.io/besttrace && chmod +x fastbesttrace.sh
   fi
@@ -366,6 +375,7 @@ de_routing() {
 }
 
 ddserver() {
+  cd $fder
   local dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
   if [ ! -e "dd-gd.sh" ]; then
     wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
@@ -382,7 +392,7 @@ time_up() {
 }
 
 reboot_time() {
-  if [[ 'crontab -l' = *reboot* ]]; then
+  if [[ $(crontab -l) = *reboot* ]]; then
     echo -e "${note}已存在reboot !"
     crontab -l
   fi
@@ -392,8 +402,9 @@ reboot_time() {
 }
 
 superspeed() {
+  cd $fder
   if [ ! $(command -v screen) ]; then
-    echo -e "${info}安装依赖 screen"
+    echo -e "${info}安装 screen"
     ${commad} install -y screen
   fi
   superspeed_link="https://git.io/superspeed"
@@ -415,11 +426,12 @@ speedtest_install() {
     sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
     sudo yum install -y speedtest && echo -e "${info}安装完成 !"
   else
-    echo -e "${error}不受支持的系统 !"
+    echo -e "${error}不受支持的系统 !" && exit 1
   fi
 }
 
 nat() {
+  cd $fder
   local nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
   if [ ! -e "nat.sh" ]; then
     wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
@@ -428,6 +440,7 @@ nat() {
 }
 
 ddns() {
+  cd $fder
   local ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
   local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
   echo -e "
@@ -464,16 +477,8 @@ ${font_color_up}2.${font_color_end} 网卡获取
   esac
 }
 
-cf_iptable() {
-  read -p "Cloudflare Email:" cf_mail
-  cf_mail=${cf_mail:-0}
-  read -p "Cloudflare Email:" cf_mail
-  cf_mail=${cf_mail:-0}
-  read -p "Cloudflare Email:" cf_mail
-  cf_mail=${cf_mail:-0}
-}
-
 besttrace() {
+  cd $fder
   local besttrace_link=https://cdn.ipip.net/17mon/besttrace4linux.zip
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate -O besttracelinux.zip $besttrace_link && unzip besttracelinux.zip "besttrace" && chmod+x besttrace && rm -f besttracelinux.zip
@@ -488,22 +493,22 @@ start_menu() {
 ——————————————————————————————
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
-${font_color_up}1.${font_color_end} 下载bbr安装脚本
+${font_color_up}1.${font_color_end} bbr安装脚本
 ${font_color_up}2.${font_color_end} 安装poseidon(docker版)
 ${font_color_up}3.${font_color_end} 更新poseidon(docker版)
-${font_color_up}4.${font_color_end} 下载bt安装脚本(py3版)
-${font_color_up}5.${font_color_end} 下载卸载bt脚本
-${font_color_up}6.${font_color_end} 下载Hotaru探针脚本
+${font_color_up}4.${font_color_end} 宝塔安装脚本(py3版)
+${font_color_up}5.${font_color_end} 卸载宝塔脚本
+${font_color_up}6.${font_color_end} Hotaru探针脚本
 ${font_color_up}7.${font_color_end} 关闭UFW防火墙
-${font_color_up}8.${font_color_end} 下载快速回程测试脚本
-${font_color_up}9.${font_color_end} 下载一键dd系统脚本(萌咖)
+${font_color_up}8.${font_color_end} 快速回程测试脚本
+${font_color_up}9.${font_color_end} 一键dd系统脚本(萌咖)
 ${font_color_up}10.${font_color_end} 设置上海时区并对齐
 ${font_color_up}11.${font_color_end} 设置每月定时重启任务
-${font_color_up}12.${font_color_end} 下载国内测速脚本(Superspeed)
+${font_color_up}12.${font_color_end} 国内测速脚本(Superspeed)
 ${font_color_up}13.${font_color_end} 安装speedtest
-${font_color_up}14.${font_color_end} 下载nat脚本
-${font_color_up}15.${font_color_end} 下载ddns脚本(DnsPod)
-${font_color_up}16.${font_color_end} 下载bettrace
+${font_color_up}14.${font_color_end} nat脚本
+${font_color_up}15.${font_color_end} ddns脚本(DnsPod)
+${font_color_up}16.${font_color_end} bettrace路由测试
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字：" num
@@ -570,6 +575,9 @@ server_cmd() {
   if [ ! -e "poseidon.log" ]; then
     upcs
     echo "1" >poseidon.log
+  fi
+  if [ ! -d "$fder" ]; then
+    mkdir $fder
   fi
   if [ ! $(command -v sudo) ]; then
     echo -e "${info}安装依赖 sudo"
