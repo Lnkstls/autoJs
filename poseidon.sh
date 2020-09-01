@@ -2,14 +2,14 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.72"
+sh_ver="0.73"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[注意]: \033[0m"
 
-if (( $EUID != 0 )); then
+if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试通过 !" && exit 1
 fi
 
@@ -39,7 +39,7 @@ upcs() {
 }
 
 add_crontab() {
-	crontab -l >$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
+  crontab -l >$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
 }
 
 parameter() {
@@ -52,35 +52,35 @@ parameter() {
         8)
           echo -e "${info}写入debian8 !"
           echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
-deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
           ;;
         9)
           echo -e "${info}写入debian9 !"
           echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
           ;;
         *)
           echo -e "${note}未匹配系统，默认写入debian9 !"
           echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-#deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-#deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+        #deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+        deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
+        #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
           ;;
         esac
       elif [ "$oss" = "Ubuntu" ]; then
@@ -89,41 +89,41 @@ deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non
         14.04)
           echo -e "${info}写入ubuntu14.04 !"
           echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse" >/etc/apt/sources.list
           ;;
         16.04)
           echo -e "${info}写入ubuntu16.04 !"
           echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
           ;;
         *)
           echo -e "${note}未匹配系统，默认写入ubuntu16.4 !"
           echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-#deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-#deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
           ;;
         esac
       elif [ "$oss" = "CentOS" ]; then
@@ -138,31 +138,33 @@ deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted 
           wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
           ;;
         *)
-            echo -e "${note}错误参数 !
-            cn 使用腾讯云镜像
-            ret 恢复镜像备份"
-            ;;
+          echo -e "${note}错误参数 !
+          cn 使用腾讯云镜像
+          ret 恢复镜像备份"
+          ;;
         esac
-        sleep 5s
-    done
+      else
+        echo -e "${note}未匹配的系统 !"
+      fi
+      sleep 5s
+      ;;
+    esac
+  done
 }
 parameter
 
 update_sh() {
-    local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
-    echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-    local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
-    [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
-    if [[ ${sh_new_ver} != ${sh_ver} ]]; then
-        echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-        read -p "(默认: y):" yn
-        [[ -z "${yn}" ]] && yn="y"
-        if [[ ${yn} == [Yy] ]]; then
-            wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
-            echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
-        else
-            echo && echo "${info}已取消..." && echo
-        fi
+  local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
+  echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+  local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+  [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
+  if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+    echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+    read -p "(默认: y):" yn
+    [[ -z "${yn}" ]] && yn="y"
+    if [[ ${yn} == [Yy] ]]; then
+      wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
+      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
     else
       echo && echo "${info}已取消..." && echo
     fi
@@ -171,14 +173,15 @@ update_sh() {
     sleep 5s
     start_menu
   fi
+
 }
 
 wget_bbr() {
-    local bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
-    if [ ! -e "./tcp.sh" ]; then
-        wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
-    fi
-    ./tcp.sh
+  local bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
+  if [ ! -e "./tcp.sh" ]; then
+    wget --no-check-certificate -O tcp.sh "${bbrrss}" && chmod +x tcp.sh
+  fi
+  ./tcp.sh
 }
 
 docker_install() {
@@ -197,18 +200,18 @@ docker_install() {
 }
 
 set_tcp_config() {
-    local tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
-    local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
-    read -p "节点id(默认1):" node_id
-    node_id=${node_id:-1}
-    read -p "webapi(必填):" webapi
-    read -p "token(必填):" token
-    read -p "节点限速(默认0):" node_speed
-    node_speed=${node_speed:-0}
-    read -p "用户ip限制(默认0):" user_ip
-    user_ip=${user_ip:-0}
-    read -p "用户限速(默认0):" user_speed
-    user_speed=${user_speed:-0}
+  local tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
+  local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
+  read -p "节点id(默认1):" node_id
+  node_id=${node_id:-1}
+  read -p "webapi(必填):" webapi
+  read -p "token(必填):" token
+  read -p "节点限速(默认0):" node_speed
+  node_speed=${node_speed:-0}
+  read -p "用户ip限制(默认0):" user_ip
+  user_ip=${user_ip:-0}
+  read -p "用户限速(默认0):" user_speed
+  user_speed=${user_speed:-0}
 
   read -p "容器名称(默认v2ray-tcp):" dc_name
   dc_name=${dc_name:-v2ray-tcp}
@@ -237,8 +240,8 @@ set_tcp_config() {
 }
 
 set_ws_config() {
-    local ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
-    local docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
+  local ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
+  local docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
 
   read -p "节点id(默认1):" node_id
   node_id=${node_id:-1}
@@ -314,16 +317,16 @@ ${font_color_up}0.${font_color_end}返回上一步
 }
 
 install_bt() {
-    local bt_link="http://download.bt.cn/install/install_panel.sh"
-    curl -sSO ${bt_link} && bash install_panel.sh
+  local bt_link="http://download.bt.cn/install/install_panel.sh"
+  curl -sSO ${bt_link} && bash install_panel.sh
 }
 rm_bt() {
-    local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
-    wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link} && bash bt_uninstall.sh
+  local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
+  wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link} && bash bt_uninstall.sh
 }
 install_hot() {
-    local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
-    wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
+  local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
+  wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 dis_ufw() {
   ufw disable && ufw reset && echo -e "${info}关闭完成"
@@ -342,11 +345,11 @@ de_routing() {
 }
 
 ddserver() {
-    local dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
-    if [ ! -e "dd-gd.sh" ]; then
-        wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
-    fi
-    ./dd-gd.sh
+  local dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
+  if [ ! -e "dd-gd.sh" ]; then
+    wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
+  fi
+  ./dd-gd.sh
 }
 
 time_up() {
@@ -358,13 +361,13 @@ time_up() {
 }
 
 reboot_time() {
-    if [[ 'crontab -l' = *reboot* ]]; then
-        echo -e "${note}已存在reboot !"
-        crontab -l
-    fi
-    read -p "每月重启时间(分 时 日 月 星期):" rt_time
-    rt_time=${reboot_time:-1}
-    add_crontab "${rt_time} bash reboot"
+  if [[ 'crontab -l' = *reboot* ]]; then
+    echo -e "${note}已存在reboot !"
+    crontab -l
+  fi
+  read -p "每月重启时间(分 时 日 月 星期):" rt_time
+  rt_time=${reboot_time:-1}
+  add_crontab "${rt_time} bash reboot"
 }
 
 superspeed() {
@@ -397,47 +400,47 @@ speedtest_install() {
 }
 
 nat() {
-    local nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
-    if [ ! -e "nat.sh" ]; then
-        wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
-    fi
-    ./nat.sh
+  local nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
+  if [ ! -e "nat.sh" ]; then
+    wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
+  fi
+  ./nat.sh
 }
 
 ddns() {
-    local ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
-    local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
-    echo -e "
+  local ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
+  local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
+  echo -e "
 \033[2A
 ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
-    read -p "请输入数字:" ddns_re
-    case "$ddns_re" in
-    1)
-        if [ ! -e "ddns.sh" ]; then
-            wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
-        fi
-        read -p "请输入APP_ID:" APP_ID
-        read -p "请输入APP_Token:" APP_Token
-        read -p "请输入domain:" domain
-        read -p "请输入host:" host
-        read -p "请输入ttl(默认600):" ttl
-        ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
-        add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
-        ;;
-    2)
-        if [ ! -e "ddns_line.sh" ]; then
-            wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
-        fi
-        vim ddns_line.sh
-        ;;
-    *)
-        echo "${error}输入错误 !"
-        sleep 3s
-        ddns
-        ;;
-    esac
+  read -p "请输入数字:" ddns_re
+  case "$ddns_re" in
+  1)
+    if [ ! -e "ddns.sh" ]; then
+      wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
+    fi
+    read -p "请输入APP_ID:" APP_ID
+    read -p "请输入APP_Token:" APP_Token
+    read -p "请输入domain:" domain
+    read -p "请输入host:" host
+    read -p "请输入ttl(默认600):" ttl
+    ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
+    add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
+    ;;
+  2)
+    if [ ! -e "ddns_line.sh" ]; then
+      wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
+    fi
+    vim ddns_line.sh
+    ;;
+  *)
+    echo "${error}输入错误 !"
+    sleep 3s
+    ddns
+    ;;
+  esac
 }
 
 cf_iptable() {
@@ -482,91 +485,91 @@ ${font_color_up}15.${font_color_end} 下载ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end} 下载bettrace
 ——————————————————————————————
 Ctrl+C 退出" && echo
-    read -p "请输入数字：" num
-    case "$num" in
-    0)
-        update_sh
-        ;;
-    1)
-        wget_bbr
-        ;;
-    2)
-        install_poseidon
-        ;;
-    3)
-        update_poseidon
-        ;;
-    4)
-        install_bt
-        ;;
-    5)
-        rm_bt
-        ;;
-    6)
-        install_hot
-        ;;
-    7)
-        dis_ufw
-        ;;
-    8)
-        de_routing
-        ;;
-    9)
-        ddserver
-        ;;
-    10)
-        time_up
-        ;;
-    11)
-        reboot_time
-        ;;
-    12)
-        superspeed
-        ;;
-    13)
-        speedtest_install
-        ;;
-    14)
-        nat
-        ;;
-    15)
-        ddns
-        ;;
-    16)
-        besttrace
-        ;;
-    *)
-        echo -e "${error}输入错误 !"
-        sleep 3s
-        start_menu
-        ;;
-    esac
+  read -p "请输入数字：" num
+  case "$num" in
+  0)
+    update_sh
+    ;;
+  1)
+    wget_bbr
+    ;;
+  2)
+    install_poseidon
+    ;;
+  3)
+    update_poseidon
+    ;;
+  4)
+    install_bt
+    ;;
+  5)
+    rm_bt
+    ;;
+  6)
+    install_hot
+    ;;
+  7)
+    dis_ufw
+    ;;
+  8)
+    de_routing
+    ;;
+  9)
+    ddserver
+    ;;
+  10)
+    time_up
+    ;;
+  11)
+    reboot_time
+    ;;
+  12)
+    superspeed
+    ;;
+  13)
+    speedtest_install
+    ;;
+  14)
+    nat
+    ;;
+  15)
+    ddns
+    ;;
+  16)
+    besttrace
+    ;;
+  *)
+    echo -e "${error}输入错误 !"
+    sleep 3s
+    start_menu
+    ;;
+  esac
 }
 server_cmd() {
-     if [ ! -e "poseidon.log" ]; then
-         upcs
-         echo "1" >poseidon.log
-    fi
-    if [ ! $(command -v sudo) ]; then
-        echo -e "${info}安装依赖 sudo"
-        ${commad} install -y sudo
-    fi
-    if [ ! $(command -v wget) ]; then
-        echo -e "${info}安装依赖 wget"
-        ${commad} install -y wget
-    fi
-    if [ ! $(command -v vim) ]; then
-        echo -e "${info}安装依赖 vim"
-        ${commad} install -y vim
-    fi
-    if [ ! $(command -v unzip) ]; then
-        echo -e "${info}安装依赖 unzip"
-        ${commad} install -y unzip
-    fi
-    if [ ! $(command -v curl) ]; then
-        echo -e "${info}安装依赖 curl"
-        ${commad} install -y curl
-    fi
+  if [ ! -e "poseidon.log" ]; then
+    upcs
+    echo "1" >poseidon.log
+  fi
+  if [ ! $(command -v sudo) ]; then
+    echo -e "${info}安装依赖 sudo"
+    ${commad} install -y sudo
+  fi
+  if [ ! $(command -v wget) ]; then
+    echo -e "${info}安装依赖 wget"
+    ${commad} install -y wget
+  fi
+  if [ ! $(command -v vim) ]; then
+    echo -e "${info}安装依赖 vim"
+    ${commad} install -y vim
+  fi
+  if [ ! $(command -v unzip) ]; then
+    echo -e "${info}安装依赖 unzip"
+    ${commad} install -y unzip
+  fi
+  if [ ! $(command -v curl) ]; then
+    echo -e "${info}安装依赖 curl"
+    ${commad} install -y curl
+  fi
 }
 server_cmd
 start_menu
