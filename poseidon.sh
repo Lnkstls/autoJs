@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.73"
+sh_ver="0.74"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -127,7 +127,7 @@ parameter() {
           ;;
         esac
       elif [ "$oss" = "CentOS" ]; then
-        cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
+        cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup 
         case $release in
         7)
           echo -e "${info}未匹配系统，默认写入centos7 !"
@@ -149,25 +149,25 @@ parameter() {
           cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
           upcs
         else
-          echo -e "${error}未找到备份 !"
+          echo -e "${error}未找到备份 !" && exit 1
         fi
       elif [ "$oss" = "CentOS" ]; then
         if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
           cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
           upcs
         else
-          echo -e "${error}未找到备份 !"
+          echo -e "${error}未找到备份 !" && exit 1
         fi
       fi
       ;;
     *)
-      echo -e "${note}错误参数 !
+      echo -e "${error}错误参数 !
   cn 使用腾讯云镜像
-  ret 恢复镜像备份"
+  ret 恢复镜像备份" && exit 1
       ;;
     esac
   done
-  sleep 5s
+  # sleep 5s
 }
 parameter $*
 
@@ -325,6 +325,8 @@ ${font_color_up}0.${font_color_end}返回上一步
     ;;
   3)
     echo -e "${error}暂不支持 !"
+    sleep 3s
+    install_poseidon
     ;;
   *)
     echo -e "${error}输入错误 !"
@@ -415,7 +417,6 @@ speedtest_install() {
   else
     echo -e "${error}不受支持的系统 !"
   fi
-
 }
 
 nat() {
