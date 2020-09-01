@@ -14,7 +14,7 @@ if (($EUID != 0)); then
 fi
 
 os() {
-  if [ $(command -v lsb_release) ]; then
+  if [ ! $(command -v lsb_release) ]; then
     yum install -y redhat-lsb
   fi
   arch='uname -m'
@@ -137,21 +137,39 @@ parameter() {
           echo -e "${info}未匹配系统，默认写入centos7 !"
           wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
           ;;
-        *)
-          echo -e "${note}错误参数 !
-          cn 使用腾讯云镜像
-          ret 恢复镜像备份"
-          ;;
         esac
       else
         echo -e "${note}未匹配的系统 !"
       fi
       sleep 5s
       ;;
+    ret)
+      if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
+        if [ -e "/etc/apt/sources.list.bakup" ]; then
+          cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
+          upcs
+        else
+          echo -e "${error}未找到备份 !"
+        fi
+      elif [ "$oss" = "CentOS" ]; then
+        if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
+          cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
+          upcs
+        else
+          echo -e "${error}未找到备份 !"
+        fi
+      fi
+      ;;
+    *)
+      echo -e "${note}错误参数 !
+  cn 使用腾讯云镜像
+  ret 恢复镜像备份"
+      ;;
     esac
   done
+  sleep 5s
 }
-parameter
+parameter $*
 
 update_sh() {
   local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
@@ -287,9 +305,10 @@ install_poseidon() {
   docker_install
   echo -e "
 \033[2A
-${font_color_up}1.${font_color_end}tcp
-${font_color_up}2.${font_color_end}ws
-${font_color_up}3.${font_color_end}tls
+——————————————————————————————
+${font_color_up}1.${font_color_end} TCP模式
+${font_color_up}2.${font_color_end} WS模式
+${font_color_up}3.${font_color_end} TLS模式
 ——————————————————————————————
 ${font_color_up}0.${font_color_end}返回上一步
     "
@@ -412,6 +431,7 @@ ddns() {
   local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
   echo -e "
 \033[2A
+——————————————————————————————
 ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
@@ -423,9 +443,9 @@ ${font_color_up}2.${font_color_end} 网卡获取
     fi
     read -p "请输入APP_ID:" APP_ID
     read -p "请输入APP_Token:" APP_Token
-    read -p "请输入domain:" domain
-    read -p "请输入host:" host
-    read -p "请输入ttl(默认600):" ttl
+    read -p "请输入Domain:" domain
+    read -p "请输入Host:" host
+    read -p "请输入TTL(默认600):" ttl
     ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
     add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
     ;;
