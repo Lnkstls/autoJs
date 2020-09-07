@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.75"
+sh_ver="0.76"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -11,29 +11,27 @@ note="\033[33m[警告]: \033[0m"
 fder="./JsSet"
 
 if (($EUID != 0)); then
-  echo -e "${error}仅在root环境下测试通过 !" && exit 1
+  echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-os() {
-  if [ ! $(command -v lsb_release) ]; then
-    yum install -y redhat-lsb
-  fi
-  arch='uname -m'
-  oss=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
-  release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
-  if [ "$arch" = "x86_64" ]; then
-    echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
-  fi
-  if [ "${oss}" = "Debian" ] || [ "${oss}" = "Ubuntu" ]; then
-    commad="apt"
-  elif [ "${oss}" = "CentOS" ]; then
-    commad="yum"
-  else
-    echo -e "${info}不支持的系统 !"
-    commad="apt"
-  fi
-}
-os
+if [ ! $(command -v lsb_release) ]; then
+  yum install -y redhat-lsb
+fi
+arch='uname -m'
+Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
+Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
+if [ "$arch" = "x86_64" ]; then
+  echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
+fi
+if [ "${Distributor}" = "Debian" ] || [ "${Distributor}" = "Ubuntu" ]; then
+  commad="apt"
+elif [ "${Distributor}" = "CentOS" ]; then
+  commad="yum"
+else
+  echo -e "${note}不支持的系统 !"
+  commad="apt"
+fi
+
 upcs() {
   echo -e "${info}更新列表 update"
   ${commad} update && echo -e "${info}更新完成 !"
@@ -47,9 +45,9 @@ parameter() {
   for par in $*; do
     case "$par" in
     cn)
-      if [ "$oss" = "Debian" ]; then
+      if [ "$Distributor" = "Debian" ]; then
         cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
-        case $release in
+        case $Release in
         8)
           echo -e "${info}写入debian8 !"
           echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
@@ -84,9 +82,9 @@ parameter() {
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
           ;;
         esac
-      elif [ "$oss" = "Ubuntu" ]; then
+      elif [ "$Distributor" = "Ubuntu" ]; then
         cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
-        case $release in
+        case $Release in
         14.04)
           echo -e "${info}写入ubuntu14.04 !"
           echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
@@ -127,9 +125,9 @@ parameter() {
         #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
           ;;
         esac
-      elif [ "$oss" = "CentOS" ]; then
+      elif [ "$Distributor" = "CentOS" ]; then
         cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
-        case $release in
+        case $Release in
         7)
           echo -e "${info}未匹配系统，默认写入centos7 !"
           wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
@@ -140,19 +138,19 @@ parameter() {
           ;;
         esac
       else
-        echo -e "${note}未匹配的系统 !"
+        echo -e "${note}未匹配到系统 !"
       fi
       sleep 5s
       ;;
     ret)
-      if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
+      if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
         if [ -e "/etc/apt/sources.list.bakup" ]; then
           cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
           upcs
         else
           echo -e "${error}未找到备份 !" && exit 1
         fi
-      elif [ "$oss" = "CentOS" ]; then
+      elif [ "$Distributor" = "CentOS" ]; then
         if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
           cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
           upcs
@@ -176,7 +174,7 @@ update_sh() {
   local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
   echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
   local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
-  [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && start_menu
+  [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
     read -p "(默认: y):" yn
@@ -413,7 +411,7 @@ superspeed() {
 }
 
 speedtest_install() {
-  if [ "$oss" = "Debian" ] || [ "$oss" = "Ubuntu" ]; then
+  if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
     sudo apt-get install -y gnupg1 apt-transport-https dirmngr
     export INSTALL_KEY=379CE192D401AB61
     export DEB_DISTRO=$(lsb_release -sc)
@@ -421,7 +419,7 @@ speedtest_install() {
     echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
     sudo apt-get update
     sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
-  elif [ "$oss" = "CentOS" ]; then
+  elif [ "$Distributor" = "CentOS" ]; then
     wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
     sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
     sudo yum install -y speedtest && echo -e "${info}安装完成 !"
@@ -486,6 +484,14 @@ besttrace() {
   ./besttrace
 }
 
+haproxy() {
+  local haproxy_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/haproxy.sh
+  if [ ! -e "besttrace" ]; then
+    wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod+x haproxy.sh
+  fi
+  ./haproxy.sh
+}
+
 start_menu() {
   clear
   echo && echo -e "Author: by @Lnkstls
@@ -509,6 +515,7 @@ ${font_color_up}13.${font_color_end} 安装speedtest
 ${font_color_up}14.${font_color_end} nat脚本
 ${font_color_up}15.${font_color_end} ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end} bettrace路由测试
+${font_color_up}17.${font_color_end} Haproxy脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字：" num
@@ -564,6 +571,9 @@ Ctrl+C 退出" && echo
   16)
     besttrace
     ;;
+  17)
+    haproxy
+    ;;
   *)
     echo -e "${error}输入错误 !"
     sleep 3s
@@ -571,34 +581,33 @@ Ctrl+C 退出" && echo
     ;;
   esac
 }
-server_cmd() {
-  if [ ! -e "poseidon.log" ]; then
-    upcs
-    echo "1" >poseidon.log
-  fi
-  if [ ! -d "$fder" ]; then
-    mkdir $fder
-  fi
-  if [ ! $(command -v sudo) ]; then
-    echo -e "${info}安装依赖 sudo"
-    ${commad} install -y sudo
-  fi
-  if [ ! $(command -v wget) ]; then
-    echo -e "${info}安装依赖 wget"
-    ${commad} install -y wget
-  fi
-  if [ ! $(command -v vim) ]; then
-    echo -e "${info}安装依赖 vim"
-    ${commad} install -y vim
-  fi
-  if [ ! $(command -v unzip) ]; then
-    echo -e "${info}安装依赖 unzip"
-    ${commad} install -y unzip
-  fi
-  if [ ! $(command -v curl) ]; then
-    echo -e "${info}安装依赖 curl"
-    ${commad} install -y curl
-  fi
-}
-server_cmd
+
+if [ ! -e "poseidon.log" ]; then
+  upcs
+  echo "1" >poseidon.log
+fi
+if [ ! -d "$fder" ]; then
+  mkdir $fder
+fi
+if [ ! $(command -v sudo) ]; then
+  echo -e "${info}安装依赖 sudo"
+  ${commad} install -y sudo
+fi
+if [ ! $(command -v wget) ]; then
+  echo -e "${info}安装依赖 wget"
+  ${commad} install -y wget
+fi
+if [ ! $(command -v vim) ]; then
+  echo -e "${info}安装依赖 vim"
+  ${commad} install -y vim
+fi
+if [ ! $(command -v unzip) ]; then
+  echo -e "${info}安装依赖 unzip"
+  ${commad} install -y unzip
+fi
+if [ ! $(command -v curl) ]; then
+  echo -e "${info}安装依赖 curl"
+  ${commad} install -y curl
+fi
+
 start_menu
