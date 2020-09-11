@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.01"
+sh_ver="0.02"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -35,24 +35,38 @@ if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-if [ ! $(command -v lsb_release) ]; then
-  yum install -y redhat-lsb
-fi
 arch='uname -m'
-Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
-Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
-# Codename=$(lsb_release -a 2>/dev/null | grep "Codename" | awk '{print $NF}')
+# Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
+# Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
 if [ "$arch" = "x86_64" ]; then
   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
 fi
-if [ "${Distributor}" = "Debian" ] || [ "${Distributor}" = "Ubuntu" ]; then
+if [[ -f /etc/redhat-release ]]; then
+  Distributor="CentOS"
+  commad="yum"
+elif cat /etc/issue | grep -Eqi "debian"; then
+  Distributor="Debian"
   commad="apt"
-elif [ "${Distributor}" = "CentOS" ]; then
+elif cat /etc/issue | grep -Eqi "ubuntu"; then
+  Distributor="Ubuntu"
+  commad="apt"
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+  Distributor="CentOS"
+  commad="yum"
+elif cat /proc/version | grep -Eqi "debian"; then
+  Distributor="Debian"
+  commad="apt"
+elif cat /proc/version | grep -Eqi "ubuntu"; then
+  release="Ubuntu"
+  commad="apt"
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+  Distributor="CentOS"
   commad="yum"
 else
-  echo -e "${info}不支持的系统 !"
-  commad="apt"
+  echo -e "${error}未检测到系统版本！" && exit 1
 fi
+
+Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
