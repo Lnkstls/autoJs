@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.76"
+sh_ver="0.77"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -14,43 +14,65 @@ if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-if [ ! $(command -v lsb_release) ]; then
-  yum install -y redhat-lsb
-fi
+
 arch='uname -m'
-Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
-Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
+# Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
+# Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
 if [ "$arch" = "x86_64" ]; then
   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
 fi
-if [ "${Distributor}" = "Debian" ] || [ "${Distributor}" = "Ubuntu" ]; then
+if [[ -f /etc/redhat-release ]]; then
+  Distributor="CentOS"
+  commad="yum"
+elif cat /etc/issue | grep -Eqi "debian"; then
+  Distributor="Debian"
   commad="apt"
-elif [ "${Distributor}" = "CentOS" ]; then
+elif cat /etc/issue | grep -Eqi "ubuntu"; then
+  Distributor="Ubuntu"
+  commad="apt"
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+  Distributor="CentOS"
+  commad="yum"
+elif cat /proc/version | grep -Eqi "debian"; then
+  Distributor="Debian"
+  commad="apt"
+elif cat /proc/version | grep -Eqi "ubuntu"; then
+  release="Ubuntu"
+  commad="apt"
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+  Distributor="CentOS"
   commad="yum"
 else
-  echo -e "${note}不支持的系统 !"
-  commad="apt"
+  echo -e "${error}未检测到系统版本！" && exit 1
 fi
+
+Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
+
+# if [ "${Distributor}" = "Debian" ] || [ "${Distributor}" = "Ubuntu" ]; then
+#   commad="apt"
+# elif [ "${Distributor}" = "CentOS" ]; then
+#   commad="yum"
+# else
+#   echo -e "${note}不支持的系统 !"
+#   commad="apt"
+# fi
 
 upcs() {
   echo -e "${info}更新列表 update"
-  ${commad} update && echo -e "${info}更新完成 !"
+  ${commad} update -y && echo -e "${info}更新完成 !"
 }
 
 add_crontab() {
-  crontab -l >$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
+  crontab -l 2>/dev/null 1>$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
 }
 
-parameter() {
-  for par in $*; do
-    case "$par" in
-    cn)
-      if [ "$Distributor" = "Debian" ]; then
-        cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
-        case $Release in
-        8)
-          echo -e "${info}写入debian8 !"
-          echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
+soucn() {
+  if [ "$Distributor" = "Debian" ]; then
+    cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
+    case $Release in
+    8)
+      echo -e "${info}写入debian8 !"
+      echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free
@@ -58,10 +80,10 @@ parameter() {
         deb-src http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
-          ;;
-        9)
-          echo -e "${info}写入debian9 !"
-          echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+      ;;
+    9)
+      echo -e "${info}写入debian9 !"
+      echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
@@ -69,10 +91,10 @@ parameter() {
         deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
-          ;;
-        *)
-          echo -e "${note}未匹配系统，默认写入debian9 !"
-          echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
+      ;;
+    *)
+      echo -e "${note}默认写入debian9 !"
+      echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
@@ -80,14 +102,14 @@ parameter() {
         deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
-          ;;
-        esac
-      elif [ "$Distributor" = "Ubuntu" ]; then
-        cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
-        case $Release in
-        14.04)
-          echo -e "${info}写入ubuntu14.04 !"
-          echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
+      ;;
+    esac
+  elif [ "$Distributor" = "Ubuntu" ]; then
+    cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
+    case $Release in
+    14.04)
+      echo -e "${info}写入ubuntu14.04 !"
+      echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
         deb http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
         deb http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
         #deb http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
@@ -97,78 +119,74 @@ parameter() {
         deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
         #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
         #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse" >/etc/apt/sources.list
-          ;;
-        16.04)
-          echo -e "${info}写入ubuntu16.04 !"
-          echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
-          ;;
-        *)
-          echo -e "${note}未匹配系统，默认写入ubuntu16.4 !"
-          echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
-          ;;
-        esac
-      elif [ "$Distributor" = "CentOS" ]; then
-        cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
-        case $Release in
-        7)
-          echo -e "${info}未匹配系统，默认写入centos7 !"
-          wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
-          ;;
-        8)
-          echo -e "${info}未匹配系统，默认写入centos7 !"
-          wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
-          ;;
-        esac
-      else
-        echo -e "${note}未匹配到系统 !"
-      fi
-      sleep 5s
       ;;
-    ret)
-      if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
-        if [ -e "/etc/apt/sources.list.bakup" ]; then
-          cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
-          upcs
-        else
-          echo -e "${error}未找到备份 !" && exit 1
-        fi
-      elif [ "$Distributor" = "CentOS" ]; then
-        if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
-          cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
-          upcs
-        else
-          echo -e "${error}未找到备份 !" && exit 1
-        fi
-      fi
+    16.04)
+      echo -e "${info}写入ubuntu16.04 !"
+      echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
       ;;
     *)
-      echo -e "${error}错误参数 !
-  cn 使用腾讯云镜像
-  ret 恢复镜像备份" && exit 1
+      echo -e "${note}默认写入ubuntu16.4 !"
+      echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
       ;;
     esac
-  done
-  # sleep 5s
+  elif [ "$Distributor" = "CentOS" ]; then
+    cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
+    case $Release in
+    7)
+      echo -e "${info}未匹配系统，默认写入centos7 !"
+      wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
+      ;;
+    8)
+      echo -e "${info}默认写入centos7 !"
+      wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
+      ;;
+    esac
+  else
+    echo -e "${note}未匹配到系统 !"
+    sleep 3s
+    break
+  fi
+  upcs
 }
-parameter $*
+souret() {
+  if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
+    if [ -e "/etc/apt/sources.list.bakup" ]; then
+      cp -f /etc/apt/sources.list.bakup /etc/apt/sources.list && echo -e "${info}恢复完成 !"
+    else
+      echo -e "${error}未找到备份 !" && exit 1
+    fi
+  elif [ "$Distributor" = "CentOS" ]; then
+    if [ -e "/etc/yum.repos.d/CentOS-Base.repo.bakup" ]; then
+      cp -f /etc/yum.repos.d/CentOS-Base.repo.bakup /etc/yum.repos.d/CentOS-Base.repo && echo -e "${info}恢复完成 !"
+    else
+      echo -e "${error}未找到备份 !" && exit 1
+    fi
+  fi
+  upcs
+  # *)
+  #   echo -e "${error}错误参数 !
+  # cn 使用腾讯云镜像
+  # ret 恢复镜像备份" && exit 1
+  #   ;;
+}
 
 update_sh() {
   local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
@@ -177,7 +195,7 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认: y):" yn
+    read -p "(默认: y): " yn
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
       wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
@@ -220,24 +238,24 @@ docker_install() {
 set_tcp_config() {
   local tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
   local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
-  read -p "节点id(默认1):" node_id
+  read -p "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(必填):" webapi
-  read -p "token(必填):" token
-  read -p "节点限速(默认0):" node_speed
+  read -p "webapi(必填): " webapi
+  read -p "token(必填): " token
+  read -p "节点限速(默认0): " node_speed
   node_speed=${node_speed:-0}
-  read -p "用户ip限制(默认0):" user_ip
+  read -p "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速(默认0):" user_speed
+  read -p "用户限速(默认0): " user_speed
   user_speed=${user_speed:-0}
 
-  read -p "容器名称(默认v2ray-tcp):" dc_name
+  read -p "容器名称(默认v2ray-tcp): " dc_name
   dc_name=${dc_name:-v2ray-tcp}
-  read -p "服务端口(默认80):" dc_port
+  read -p "服务端口(默认80): " dc_port
   dc_port=${dc_port:-80}
 
   if [ -d "$dc_name" ]; then
-    echo -e "${error}容器名称重复!"
+    echo -e "${error}容器名称重复 !"
     sleep 3s
     set_tcp_config
   fi
@@ -261,22 +279,22 @@ set_ws_config() {
   local ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
   local docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
 
-  read -p "节点id(默认1):" node_id
+  read -p "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(必填):" webapi
-  read -p "token(必填):" token
-  read -p "节点限速(默认0):" node_speed
+  read -p "webapi(必填): " webapi
+  read -p "token(必填): " token
+  read -p "节点限速(默认0): " node_speed
   node_speed=${node_speed:-0}
-  read -p "用户ip限制(默认0):" user_ip
+  read -p "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速(默认0):" user_speed
+  read -p "用户限速(默认0): " user_speed
   user_speed=${user_speed:-0}
 
-  read -p "容器名称(默认v2ray-ws):" dc_name
+  read -p "容器名称(默认v2ray-ws): " dc_name
   dc_name=${dc_name:-v2ray-ws}
-  read -p "连接端口(默认80):" dc_port
+  read -p "连接端口(默认80): " dc_port
   dc_port=${dc_port:-80}
-  read -p "服务端口(默认10086):" ser_port
+  read -p "服务端口(默认10086): " ser_port
   ser_port=${ser_port:-10086}
 
   if [ -d "$dc_name" ]; then
@@ -312,7 +330,7 @@ ${font_color_up}3.${font_color_end} TLS模式
 ——————————————————————————————
 ${font_color_up}0.${font_color_end}返回上一步
     "
-  read -p "请输入数字:" num
+  read -p "请输入数字: " num
   case "$num" in
   0)
     start_menu
@@ -417,7 +435,7 @@ speedtest_install() {
     export DEB_DISTRO=$(lsb_release -sc)
     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
     echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
-    sudo apt-get update
+    sudo apt-get update -y
     sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
   elif [ "$Distributor" = "CentOS" ]; then
     wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
@@ -447,17 +465,17 @@ ddns() {
 ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
-  read -p "请输入数字:" ddns_re
+  read -p "请输入数字: " ddns_re
   case "$ddns_re" in
   1)
     if [ ! -e "ddns.sh" ]; then
       wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
     fi
-    read -p "请输入APP_ID:" APP_ID
-    read -p "请输入APP_Token:" APP_Token
-    read -p "请输入Domain:" domain
-    read -p "请输入Host:" host
-    read -p "请输入TTL(默认600):" ttl
+    read -p "请输入APP_ID: " APP_ID
+    read -p "请输入APP_Token: " APP_Token
+    read -p "请输入Domain: " domain
+    read -p "请输入Host: " host
+    read -p "请输入TTL(默认600): " ttl
     ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
     add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
     ;;
@@ -518,7 +536,7 @@ ${font_color_up}16.${font_color_end} bettrace路由测试
 ${font_color_up}17.${font_color_end} Haproxy脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
-  read -p "请输入数字：" num
+  read -p "请输入数字: " num
   case "$num" in
   0)
     update_sh
@@ -609,5 +627,34 @@ if [ ! $(command -v curl) ]; then
   echo -e "${info}安装依赖 curl"
   ${commad} install -y curl
 fi
+
+ARGS=$(getopt -a -o :s:h -l source::,help -- "$@")
+eval set -- "$ARGS"
+for opt in $@; do
+  case $opt in
+  -s | --all)
+    shift
+    case $1 in
+    cn)
+      soucn
+      ;;
+    ret)
+      souret
+      ;;
+    * | --)
+      echo -e "${error}错误参数 !" && exit 1
+      ;;
+    esac
+    break
+    ;;
+  -h | --help)
+    echo -e "参数列表:
+  -s  --source  cn 使用腾讯云镜像
+                ret 恢复备份
+  -h  --help    帮助"
+    exit 1
+    ;;
+  esac
+done
 
 start_menu
