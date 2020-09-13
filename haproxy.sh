@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.03"
+sh_ver="0.04"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -19,7 +19,7 @@ update_sh() {
     read -p "(默认: y):" yn
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
-      wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
+      wget -O haproxy.sh "${github}/haproxy.sh" && chmod +x haproxy.sh
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
     else
       echo && echo "${info}已取消..." && echo
