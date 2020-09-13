@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.02"
+sh_ver="0.03"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -71,15 +71,17 @@ Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | se
 install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
     if [ "$Release" = "9" ]; then
-      curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -
-      echo deb http://haproxy.debian.net stretch-backports-2.2 main | tee /etc/apt/sources.list.d/haproxy.list
-      apt update
-      apt install -y haproxy=2.2.\* && echo -e "${info}安装完成(2.2)"
+      curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add - &&
+        echo deb http://haproxy.debian.net stretch-backports-2.2 main | tee /etc/apt/sources.list.d/haproxy.list &&
+        apt update &&
+        apt install -y haproxy=2.2.\* &&
+        echo -e "${info}安装完成(2.2)"
     elif [ "$Release" = "10" ]; then
-      curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add -
-      echo deb http://haproxy.debian.net buster-backports-2.2 main | tee /etc/apt/sources.list.d/haproxy.list
-      apt update
-      apt install -y haproxy=2.2.\* && echo -e "${info}安装完成(2.2)"
+      curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add - &&
+        echo deb http://haproxy.debian.net buster-backports-2.2 main | tee /etc/apt/sources.list.d/haproxy.list &&
+        apt update &&
+        apt install -y haproxy=2.2.\* &&
+        echo -e "${info}安装完成(2.2)"
     fi
   elif [ "$Distributor" = "CentOS" ]; then
     echo -e "${error}暂不提供 !"
@@ -90,7 +92,7 @@ install() {
 
 uninstall() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
-    apt purge -y haproxy
+    apt purge -y haproxy && ehco -e "${info}卸载完成 !"
   # elif [ "$Distributor" = "CentOS" ]; then
   #     echo -e "${error}暂不提供 !"
   else
@@ -99,7 +101,7 @@ uninstall() {
 }
 
 reboot() {
-  systemctl restart haproxy
+  haproxy -f /etc/haproxy/haproxy.cfg && systemctl restart haproxy && echo -e "${info}启动成功 !"
 }
 
 status() {
@@ -116,9 +118,9 @@ edit_etc() {
   vim /etc/haproxy/haproxy.cfg
 }
 
-qk_edit() {
-
-}
+# qk_edit() {
+#
+# }
 
 start_menu() {
   echo -e "Author: by @Lnkstls
@@ -145,7 +147,7 @@ Ctrl+c 退出" && echo
   2)
     uninstall
     ;;
-  2)
+  3)
     reboot
     ;;
   4)
@@ -168,11 +170,17 @@ Ctrl+c 退出" && echo
 
 }
 
-if [ $(command -v vim) ]; then
+if [ ! $(command -v gnupg1) ]; then
+  echo -e "${info}安装依赖 vim"
+  ${commad} install -y gnupg1
+fi
+if [ ! $(command -v vim) ]; then
   echo -e "${info}安装依赖 vim"
   ${commad} install -y vim
 fi
-if [ $(command -v curl) ]; then
+if [ ! $(command -v curl) ]; then
   echo -e "${info}安装依赖 curl"
   ${commad} install -y curl
 fi
+
+start_menu

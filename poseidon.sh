@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.77"
+sh_ver="0.78"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -13,7 +13,6 @@ fder="./JsSet"
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
-
 
 arch='uname -m'
 # Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
@@ -161,9 +160,9 @@ soucn() {
     esac
   else
     echo -e "${note}未匹配到系统 !"
-    sleep 3s
     break
   fi
+  sleep 3s
   upcs
 }
 souret() {
@@ -430,17 +429,17 @@ superspeed() {
 
 speedtest_install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
-    sudo apt-get install -y gnupg1 apt-transport-https dirmngr
+    apt install -y gnupg1 apt-transport-https dirmngr
     export INSTALL_KEY=379CE192D401AB61
     export DEB_DISTRO=$(lsb_release -sc)
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
     echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
-    sudo apt-get update -y
-    sudo apt-get install -y speedtest && echo -e "${info}安装完成 !"
+    apt update -y
+    apt install -y speedtest && echo -e "${info}安装完成 !"
   elif [ "$Distributor" = "CentOS" ]; then
     wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
-    sudo mv bintray-ookla-rhel.repo /etc/yum.repos.d/
-    sudo yum install -y speedtest && echo -e "${info}安装完成 !"
+    mv bintray-ookla-rhel.repo /etc/yum.repos.d/
+    yum install -y speedtest && echo -e "${info}安装完成 !"
   else
     echo -e "${error}不受支持的系统 !" && exit 1
   fi
@@ -505,7 +504,7 @@ besttrace() {
 haproxy() {
   local haproxy_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/haproxy.sh
   if [ ! -e "besttrace" ]; then
-    wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod+x haproxy.sh
+    wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod +x haproxy.sh
   fi
   ./haproxy.sh
 }
@@ -600,34 +599,6 @@ Ctrl+C 退出" && echo
   esac
 }
 
-if [ ! -e "poseidon.log" ]; then
-  upcs
-  echo "1" >poseidon.log
-fi
-if [ ! -d "$fder" ]; then
-  mkdir $fder
-fi
-if [ ! $(command -v sudo) ]; then
-  echo -e "${info}安装依赖 sudo"
-  ${commad} install -y sudo
-fi
-if [ ! $(command -v wget) ]; then
-  echo -e "${info}安装依赖 wget"
-  ${commad} install -y wget
-fi
-if [ ! $(command -v vim) ]; then
-  echo -e "${info}安装依赖 vim"
-  ${commad} install -y vim
-fi
-if [ ! $(command -v unzip) ]; then
-  echo -e "${info}安装依赖 unzip"
-  ${commad} install -y unzip
-fi
-if [ ! $(command -v curl) ]; then
-  echo -e "${info}安装依赖 curl"
-  ${commad} install -y curl
-fi
-
 ARGS=$(getopt -a -o :s:h -l source::,help -- "$@")
 eval set -- "$ARGS"
 for opt in $@; do
@@ -656,5 +627,33 @@ for opt in $@; do
     ;;
   esac
 done
+
+if [ ! -e "poseidon.log" ]; then
+  upcs
+  echo "1" >poseidon.log
+fi
+if [ ! -d "$fder" ]; then
+  mkdir $fder
+fi
+if [ ! $(command -v sudo) ]; then
+  echo -e "${info}安装依赖 sudo"
+  ${commad} install -y sudo
+fi
+if [ ! $(command -v wget) ]; then
+  echo -e "${info}安装依赖 wget"
+  ${commad} install -y wget
+fi
+if [ ! $(command -v vim) ]; then
+  echo -e "${info}安装依赖 vim"
+  ${commad} install -y vim
+fi
+if [ ! $(command -v unzip) ]; then
+  echo -e "${info}安装依赖 unzip"
+  ${commad} install -y unzip
+fi
+if [ ! $(command -v curl) ]; then
+  echo -e "${info}安装依赖 curl"
+  ${commad} install -y curl
+fi
 
 start_menu
