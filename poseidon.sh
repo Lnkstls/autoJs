@@ -56,6 +56,28 @@ Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | se
 #   commad="apt"
 # fi
 
+update_sh() {
+  local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
+  echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
+  local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+  [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && sleep 3s && start_menu
+  if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+    echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
+    read -p "(默认: y): " yn
+    [[ -z "${yn}" ]] && yn="y"
+    if [[ ${yn} == [Yy] ]]; then
+      wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
+      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
+    else
+      echo && echo "${info}已取消..." && echo
+    fi
+  else
+    echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
+    sleep 5s
+    start_menu
+  fi
+}
+
 upcs() {
   echo -e "${info}更新列表 update"
   ${commad} update -y && echo -e "${info}更新完成 !"
@@ -185,29 +207,6 @@ souret() {
   # cn 使用腾讯云镜像
   # ret 恢复镜像备份" && exit 1
   #   ;;
-}
-
-update_sh() {
-  local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
-  echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-  local sh_new_ver=$(wget -qO- "${github}/poseidon.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
-  [[ -z ${sh_new_ver} ]] && echo -e "${Error} 检测最新版本失败 !" && sleep 3s && start_menu
-  if [[ ${sh_new_ver} != ${sh_ver} ]]; then
-    echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认: y): " yn
-    [[ -z "${yn}" ]] && yn="y"
-    if [[ ${yn} == [Yy] ]]; then
-      wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
-      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
-    else
-      echo && echo "${info}已取消..." && echo
-    fi
-  else
-    echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
-    sleep 5s
-    start_menu
-  fi
-
 }
 
 wget_bbr() {
@@ -496,7 +495,10 @@ besttrace() {
   cd $fder
   local besttrace_link=https://cdn.ipip.net/17mon/besttrace4linux.zip
   if [ ! -e "besttrace" ]; then
-    wget --no-check-certificate -O besttracelinux.zip $besttrace_link && unzip besttracelinux.zip "besttrace" && chmod+x besttrace && rm -f besttracelinux.zip
+    wget --no-check-certificate -O besttracelinux.zip $besttrace_link &&
+      unzip besttracelinux.zip "besttrace" &&
+      chmod +x besttrace &&
+      rm -f besttracelinux.zip
   fi
   ./besttrace
 }
