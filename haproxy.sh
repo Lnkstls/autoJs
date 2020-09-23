@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.05"
+sh_ver="0.06"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -69,6 +69,42 @@ fi
 Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 install() {
+  echo -e "
+\033[2A
+——————————————————————————————
+${font_color_up}1.${font_color_end} 仓库安装
+${font_color_up}2.${font_color_end} 编译安装
+${font_color_up}3.${font_color_end} docker安装
+——————————————————————————————
+${font_color_up}0.${font_color_end}返回上一步
+    "
+  read -p "请输入数字: " num
+  case "$num" in
+  0)
+    start_menu
+    ;;
+  1)
+    sev_install
+    ;;
+  2)
+    echo -e "${info}开发中..."
+    sleep 3s
+    install
+    ;;
+  3)
+    echo -e "${info}开发中..."
+    sleep 3s
+    install
+    ;;
+  *)
+    echo -e "${error}输入错误 !"
+    sleep 3s
+    install
+    ;;
+  esac
+}
+
+sev_install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
     if [ "$Release" = "9" ]; then
       curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add - &&
@@ -80,8 +116,7 @@ install() {
       curl https://haproxy.debian.net/bernat.debian.org.gpg | apt-key add - &&
         echo deb http://haproxy.debian.net buster-backports-2.2 main | tee /etc/apt/sources.list.d/haproxy.list &&
         apt update &&
-        apt install -y haproxy=2.2.\* &&
-        echo -e "${info}安装完成(2.2)"
+        apt install -y haproxy=2.2.\* && curl && echo -e "${info}安装完成(2.2)"
     fi
   elif [ "$Distributor" = "CentOS" ]; then
     echo -e "${error}暂不提供 !"
@@ -101,7 +136,20 @@ uninstall() {
 }
 
 reboot() {
-  haproxy -f /etc/haproxy/haproxy.cfg && systemctl restart haproxy && echo -e "${info}启动成功 !"
+  haproxy -f /etc/haproxy/haproxy.cfg
+  if [ $? -eq 0 ]; then
+    systemctl restart haproxy && echo -e "${info}重启成功 !"
+  else
+    echo -e "${error}配置错误 !"
+  fi
+}
+reboot() {
+  haproxy -f /etc/haproxy/haproxy.cfg
+  if [ $? -eq 0 ]; then
+    systemctl reload haproxy && echo -e "${info}重载成功 !"
+  else
+    echo -e "${error}配置错误 !"
+  fi
 }
 
 status() {
@@ -131,9 +179,10 @@ ${font_color_up}0.${font_color_end} 升级脚本
 ${font_color_up}1.${font_color_end} 安装Haproxy
 ${font_color_up}2.${font_color_end} 卸载Haproxy
 ${font_color_up}3.${font_color_end} 重启Haproxy
-${font_color_up}4.${font_color_end} 查看状态
-${font_color_up}5.${font_color_end} 编辑配置
-${font_color_up}6.${font_color_end} 快速配置
+${font_color_up}4.${font_color_end} 重载Haproxy
+${font_color_up}5.${font_color_end} 查看状态
+${font_color_up}6.${font_color_end} 编辑配置
+${font_color_up}7.${font_color_end} 快速配置
 ——————————————————————————————
 Ctrl+c 退出" && echo
   read -p "请输入数字: " num
@@ -151,12 +200,15 @@ Ctrl+c 退出" && echo
     reboot
     ;;
   4)
-    status
+    reload
     ;;
   5)
-    edit_etc
+    status
     ;;
   6)
+    edit_etc
+    ;;
+  7)
     echo -e "${error}暂不支持 !"
     sleep 3s
     start_menu
@@ -170,10 +222,35 @@ Ctrl+c 退出" && echo
 
 }
 
-# if [ ! $(command -v gnupg1) ]; then
-#   echo -e "${info}安装依赖 gnupg1"
-#   ${commad} install -y gnupg1
-# fi
+ARGS=$(getopt -a -o :rs -l reboot,reload,status,help -- "$@")
+eval set -- "$ARGS"
+for opt in $@; do
+  case $opt in
+  -s | --status | status)
+    status
+    break
+    ;;
+  -r | --reload | reload)
+    reload
+    break
+    ;;
+  --reboot | reboot)
+    reboot
+    break
+    ;;
+  -h | --help)
+    echo -e "参数列表:
+  -s  --status  状态
+  -r  --reload  重载
+  -h  --help    帮助
+  
+  --reboot  重启"
+    exit 1
+    ;;
+  esac
+done
+
+# 安装支持依赖
 if [ ! $(command -v vim) ]; then
   echo -e "${info}安装依赖 vim"
   ${commad} install -y vim
