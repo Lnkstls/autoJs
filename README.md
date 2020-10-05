@@ -20,4 +20,6 @@ python3 GBControl.py #测试系统debian
 ## poseidon
 ```
 wget -O poseidon.sh  https://raw.githubusercontent.com/Lnkstls/autoJs/master/poseidon.sh && chmod +x poseidon.sh && ./poseidon.sh
+或
+wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh && ./poseidon.sh
 ```
