@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.79"
+sh_ver="0.80"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -84,7 +84,11 @@ upcs() {
 }
 
 add_crontab() {
-  crontab -l 2>/dev/null 1>$0.temp && echo "$*" >>$0.temp && crontab $0.temp && rm -f $0.temp && echo -e "${info}" && crontab -l
+  crontab -l 2>/dev/null >$0.temp
+  echo "$*" >>$0.temp &&
+    crontab $0.temp &&
+    rm -f $0.temp &&
+    echo -e "${info}添加crontab成功 !" && crontab -l
 }
 
 soucn() {
@@ -92,7 +96,7 @@ soucn() {
     cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
     case $Release in
     8)
-      echo -e "${info}写入debian8 !"
+      echo -e "${info}写入Debian8 !"
       echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
@@ -103,7 +107,7 @@ soucn() {
         #deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
       ;;
     9)
-      echo -e "${info}写入debian9 !"
+      echo -e "${info}写入Debian9 !"
       echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
@@ -113,16 +117,19 @@ soucn() {
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
       ;;
+    10)
+      echo -e "${info}写入Debian10 !"
+      echo "deb https://mirrors.cloud.tencent.com/debian/ buster main contrib non-free
+        deb https://mirrors.cloud.tencent.com/debian/ buster-updates main contrib non-free
+        deb https://mirrors.cloud.tencent.com/debian/ buster-backports main contrib non-free
+        deb https://mirrors.cloud.tencent.com/debian-security buster/updates main contrib non-free
+        deb-src https://mirrors.cloud.tencent.com/debian/ buster main contrib non-free
+        deb-src https://mirrors.cloud.tencent.com/debian/ buster-updates main contrib non-free
+        deb-src https://mirrors.cloud.tencent.com/debian/ buster-backports main contrib non-free
+        deb-src https://mirrors.cloud.tencent.com/debian-security buster/updates main contrib non-free" >/etc/apt/sources.list
+      ;;
     *)
-      echo -e "${note}默认写入debian9 !"
-      echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-        deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-        #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-        #deb http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free
-        deb-src http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
-        deb-src http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
-        #deb-src http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
-        #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
+      echo -e "${error}未匹配到系统 !" && exit 1
       ;;
     esac
   elif [ "$Distributor" = "Ubuntu" ]; then
@@ -172,17 +179,16 @@ soucn() {
     cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
     case $Release in
     7)
-      echo -e "${info}未匹配系统，默认写入centos7 !"
+      echo -e "${info}写入centos7 !"
       wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
       ;;
     8)
-      echo -e "${info}默认写入centos7 !"
+      echo -e "${info}写入centos8 !"
       wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
       ;;
     esac
   else
-    echo -e "${note}未匹配到系统 !"
-    break
+    echo -e "${error}未匹配到系统 !" && exit 1
   fi
   sleep 3s
   upcs
@@ -202,11 +208,6 @@ souret() {
     fi
   fi
   upcs
-  # *)
-  #   echo -e "${error}错误参数 !
-  # cn 使用腾讯云镜像
-  # ret 恢复镜像备份" && exit 1
-  #   ;;
 }
 
 wget_bbr() {
@@ -218,7 +219,7 @@ wget_bbr() {
   ./tcp.sh
 }
 
-docker_install() {
+install_docker() {
   if [ ! $(command -v docker) ]; then
     echo -e "${info}开始安装docker..."
     curl -fsSL https://get.docker.com | bash
@@ -226,11 +227,9 @@ docker_install() {
     chmod a+x /usr/local/bin/docker-compose
     rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
     systemctl start docker >/dev/null && echo -e "${info}docker安装完成"
+  else
+    echo -e "${info}已安装Docker !"
   fi
-  if [ ! -e "v2" ]; then
-    mkdir v2
-  fi
-  cd v2
 }
 
 set_tcp_config() {
@@ -318,7 +317,11 @@ set_ws_config() {
 }
 
 install_poseidon() {
-  docker_install
+  if [ ! -e "v2" ]; then
+    mkdir v2
+  fi
+  cd v2
+  install_docker
   echo -e "
 \033[2A
 ——————————————————————————————
@@ -368,10 +371,6 @@ install_hot() {
   local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
   wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
-dis_ufw() {
-  cd $fder
-  ufw disable && ufw reset && echo -e "${info}关闭完成"
-}
 update_poseidon() {
   if [[ $(docker pull v2cc/poseidon:latest) = *"Image is up to date"* ]]; then
     docker images --digests
@@ -399,7 +398,7 @@ ddserver() {
 
 time_up() {
   if [ ! $(command -v ntpdate) ]; then
-    ${commad} install -y ntpdate
+    ${commad} -y install ntpdate
   fi
   timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
   timedatectl
@@ -419,7 +418,7 @@ superspeed() {
   cd $fder
   if [ ! $(command -v screen) ]; then
     echo -e "${info}安装 screen"
-    ${commad} install -y screen
+    ${commad} -y install screen
   fi
   superspeed_link="https://git.io/superspeed"
   wget --no-check-certificate -O superspeed.sh ${superspeed_link} && chmod +x superspeed.sh
@@ -428,17 +427,17 @@ superspeed() {
 
 speedtest_install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
-    apt install -y gnupg1 apt-transport-https dirmngr
+    apt -y install gnupg1 apt-transport-https dirmngr
     export INSTALL_KEY=379CE192D401AB61
     export DEB_DISTRO=$(lsb_release -sc)
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
     echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
     apt update -y
-    apt install -y speedtest && echo -e "${info}安装完成 !"
+    apt -y install speedtest && echo -e "${info}安装完成 !" && speedtest
   elif [ "$Distributor" = "CentOS" ]; then
     wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
     mv bintray-ookla-rhel.repo /etc/yum.repos.d/
-    yum install -y speedtest && echo -e "${info}安装完成 !"
+    yum install -y speedtest && echo -e "${info}安装完成 !" && speedtest
   else
     echo -e "${error}不受支持的系统 !" && exit 1
   fi
@@ -474,8 +473,8 @@ ${font_color_up}2.${font_color_end} 网卡获取
     read -p "请输入Domain: " domain
     read -p "请输入Host: " host
     read -p "请输入TTL(默认600): " ttl
-    ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl
-    add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
+    ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl &&
+      add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
     ;;
   2)
     if [ ! -e "ddns_line.sh" ]; then
@@ -493,10 +492,10 @@ ${font_color_up}2.${font_color_end} 网卡获取
 
 besttrace() {
   cd $fder
-  local besttrace_link=https://cdn.ipip.net/17mon/besttrace4linux.zip
+  local besttrace_link="https://cdn.ipip.net/17mon/besttrace4linux.zip"
   if [ ! -e "besttrace" ]; then
-    wget --no-check-certificate -O besttracelinux.zip $besttrace_link &&
-      unzip besttracelinux.zip "besttrace" &&
+    wget --no-check-certificate -O besttrace.zip $besttrace_link &&
+      unzip besttrace.zip "besttrace" &&
       chmod +x besttrace &&
       rm -f besttracelinux.zip
   fi
@@ -504,7 +503,7 @@ besttrace() {
 }
 
 haproxy() {
-  local haproxy_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/haproxy.sh
+  local haproxy_link="https://raw.githubusercontent.com/Lnkstls/autoJs/master/haproxy.sh"
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod +x haproxy.sh
   fi
@@ -519,13 +518,13 @@ start_menu() {
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
 ${font_color_up}1.${font_color_end} bbr安装脚本
-${font_color_up}2.${font_color_end} 安装poseidon(docker版)
-${font_color_up}3.${font_color_end} 更新poseidon(docker版)
-${font_color_up}4.${font_color_end} 宝塔安装脚本(py3版)
-${font_color_up}5.${font_color_end} 卸载宝塔脚本
-${font_color_up}6.${font_color_end} Hotaru探针脚本
-${font_color_up}7.${font_color_end} 关闭UFW防火墙
-${font_color_up}8.${font_color_end} 快速回程测试脚本
+${font_color_up}2.${font_color_end} 安装Docker、Docker-compose
+${font_color_up}3.${font_color_end} 安装poseidon(docker版)
+${font_color_up}4.${font_color_end} 更新poseidon(docker版)
+${font_color_up}5.${font_color_end} 宝塔安装脚本(py3版)
+${font_color_up}6.${font_color_end} 卸载宝塔脚本
+${font_color_up}7.${font_color_end} Hotaru探针脚本
+${font_color_up}8.${font_color_end} 快速国内回程测试脚本
 ${font_color_up}9.${font_color_end} 一键dd系统脚本(萌咖)
 ${font_color_up}10.${font_color_end} 设置上海时区并对齐
 ${font_color_up}11.${font_color_end} 设置每月定时重启任务
@@ -546,22 +545,22 @@ Ctrl+C 退出" && echo
     wget_bbr
     ;;
   2)
-    install_poseidon
+    install_docker
     ;;
   3)
-    update_poseidon
+    install_poseidon
     ;;
   4)
-    install_bt
+    update_poseidon
     ;;
   5)
-    rm_bt
+    install_bt
     ;;
   6)
-    install_hot
+    rm_bt
     ;;
   7)
-    dis_ufw
+    install_hot
     ;;
   8)
     de_routing
@@ -639,23 +638,27 @@ if [ ! -d "$fder" ]; then
 fi
 if [ ! $(command -v sudo) ]; then
   echo -e "${info}安装依赖 sudo"
-  ${commad} install -y sudo
+  ${commad} -y install sudo
 fi
 if [ ! $(command -v wget) ]; then
   echo -e "${info}安装依赖 wget"
-  ${commad} install -y wget
+  ${commad} -y install wget
 fi
 if [ ! $(command -v vim) ]; then
   echo -e "${info}安装依赖 vim"
-  ${commad} install -y vim
+  ${commad} -y install vim
 fi
 if [ ! $(command -v unzip) ]; then
   echo -e "${info}安装依赖 unzip"
-  ${commad} install -y unzip
+  ${commad} -y install unzip
 fi
 if [ ! $(command -v curl) ]; then
   echo -e "${info}安装依赖 curl"
-  ${commad} install -y curl
+  ${commad} -y install curl
+fi
+if [ ! $(command -v iperf3) ]; then
+  echo -e "${info}安装依赖 iperf3"
+  ${commad} -y install iperf3
 fi
 
 start_menu
