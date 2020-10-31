@@ -27,6 +27,8 @@ wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh &&
 ## cloudfront
 来自：@Alio_prpr
 ```
+pip3 install qqwry-py3 requests qqwry
+
 wget -O cloudfront.py  https://raw.githubusercontent.com/Lnkstls/autoJs/master/cloudfront.py
 或
 wget -O cloudfront.py  https://js.clapse.com/Lnkstls/autoJs/master/cloudfront.py
