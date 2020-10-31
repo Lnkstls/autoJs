@@ -31,5 +31,5 @@ pip3 install qqwry-py3 requests qqwry
 
 wget -O cloudfront.py  https://raw.githubusercontent.com/Lnkstls/autoJs/master/cloudfront.py
 或
-wget -O cloudfront.py  https://js.clapse.com/Lnkstls/autoJs/master/cloudfront.py
+wget -O cloudfront.py  https://js.clapse.com/cloudfront.py
 ```
