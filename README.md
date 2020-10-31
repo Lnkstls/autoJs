@@ -23,10 +23,7 @@ wget -O poseidon.sh  https://raw.githubusercontent.com/Lnkstls/autoJs/master/pos
 或
 wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh && ./poseidon.sh
 ```
-**使用国内镜像**
-```
-wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh && ./poseidon.sh -s cn
-```
+
 ## cloudfront
 来自：@Alio_prpr
 ```
