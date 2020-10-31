@@ -27,3 +27,10 @@ wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh &&
 ```
 wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh && ./poseidon.sh -s cn
 ```
+## cloudfront
+来自：@Alio_prpr
+```
+wget -O cloudfront.py  https://raw.githubusercontent.com/Lnkstls/autoJs/master/cloudfront.py
+或
+wget -O cloudfront.py  https://js.clapse.com/Lnkstls/autoJs/master/cloudfront.py
+```
