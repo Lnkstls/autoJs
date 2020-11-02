@@ -234,8 +234,8 @@ if __name__ == '__main__':
         print('Exit..')
         sys.exit()
     print("%sScan Stop." % ret_time())
-    print("%sWait nf. 3sec..." % ret_time())
-    time.sleep(3)
+    #print("%sWait nf. 3sec..." % ret_time())
+    #time.sleep(3)
     print("%sStart. Read Ip File" % ret_time())
     # PingIp
     start_time = time.time()
