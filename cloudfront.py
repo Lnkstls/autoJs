@@ -24,6 +24,8 @@ session.keep_alive = False
 session.mount('https://', HTTPAdapter())
 session.mount('http://', HTTPAdapter())
 
+if not os.path.exists('result'):
+		os.makedirs('result')
 
 def UsePlatform():
     global runos
@@ -197,16 +199,16 @@ if __name__ == '__main__':
         'Init->IP Data: Load:%s Version:%s-%s' % (qq_wry.is_loaded(), qq_wry.get_lastone()[0], qq_wry.get_lastone()[1]))
     print('Init->Start Time: %s' % ret_time())
     print('################################################\n')
-    #sys.argv.append('*')
+   	#sys.argv.append('*')
     #sys.argv.append('200')
     global SETTHREAD
     global ip_file
     global ip_info_file
-    #print(sys.argv[2])
+   
     try:
         SETTHREAD = sys.argv[2]
-        ip_file = open("IP-%s段.txt" % sys.argv[1].split('-')[0], "w")
-        ip_info_file = open("IP归属地-%s段.txt" % sys.argv[1].split('-')[0], "w")
+        ip_file = open("./result/IP-%s段.txt" % sys.argv[1].split('-')[0], "w")
+        ip_info_file = open("./result/IP归属地-%s段.txt" % sys.argv[1].split('-')[0], "w")
         iplist = ip_range(sys.argv[1].split('-')[0], sys.argv[1].split('-')[1])
         print("%sScan IP:%s Thread:%s" % (ret_time(), sys.argv[1], sys.argv[2]))
         print(ret_time() + 'Will scan ' + str(len(iplist)) + " host .. Sleep 1sec...\n")
@@ -232,14 +234,14 @@ if __name__ == '__main__':
         print('Exit..')
         sys.exit()
     print("%sScan Stop." % ret_time())
-    # print("%sWait nf. 3sec..." % ret_time())
-    # time.sleep(3)
+    print("%sWait nf. 3sec..." % ret_time())
+    time.sleep(3)
     print("%sStart. Read Ip File" % ret_time())
     # PingIp
     start_time = time.time()
     IP_QUEUE_LIST = Queue()
     ping_ip_retdic = {}
-    with open("IP-%s段.txt" % sys.argv[1].split('-')[0], mode="r", encoding="utf-8") as ip_file_pt:
+    with open("./result/IP-%s段.txt" % sys.argv[1].split('-')[0], mode="r", encoding="utf-8") as ip_file_pt:
         for ip_line in ip_file_pt:
             print("%sRead IP:%s" % (ret_time(), ip_line.strip('\n')))
             IP_QUEUE_LIST.put(ip_line.strip('\n'))
@@ -256,7 +258,7 @@ if __name__ == '__main__':
     ping_ip_retdic_sort = sorted(ping_ip_retdic.items(), key=lambda ip_item: ip_item[1][0], reverse=False)
     # print(ping_ip_retdic_sort)
     print('%sPing执行所用时间：%s' % (ret_time(), time.time() - start_time))
-    with open("IP-Ping-%s段.txt" % sys.argv[1].split('-')[0], "w") as ping_file:
+    with open("./result/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0], "w") as ping_file:
         for ip_line in ping_ip_retdic_sort:
             ping_file.write("%s     %s    %s\n" % (ip_line[0], ip_line[1][0], ip_line[1][1]))
             print("%s Write file:%s     %s   %s" % (ret_time(), ip_line[0], ip_line[1][0], ip_line[1][1]))
