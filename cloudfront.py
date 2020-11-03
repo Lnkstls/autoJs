@@ -259,8 +259,12 @@ if __name__ == '__main__':
     # print(ping_ip_retdic_sort)
     print('%sPing执行所用时间：%s' % (ret_time(), time.time() - start_time))
     with open("./result/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0], "w") as ping_file:
-        for ip_line in ping_ip_retdic_sort:
+    	for ip_line in ping_ip_retdic_sort:
             ping_file.write("%s     %s    %s\n" % (ip_line[0], ip_line[1][0], ip_line[1][1]))
             print("%s Write file:%s     %s   %s" % (ret_time(), ip_line[0], ip_line[1][0], ip_line[1][1]))
+    if not os.path.getsize("./result/IP-%s段.txt" % sys.argv[1].split('-')[0]):
+    	os.remove("./result/IP-%s段.txt" % sys.argv[1].split('-')[0])
+    	os.remove("./result/IP归属地-%s段.txt" % sys.argv[1].split('-')[0])
+    	os.remove("./result/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0])
     print('%sExit...' % ret_time())
     sys.exit()
