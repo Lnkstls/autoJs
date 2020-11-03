@@ -26,6 +26,7 @@ wget -O poseidon.sh https://js.clapse.com/poseidon.sh && chmod +x poseidon.sh &&
 
 ## cloudfront
 来自：@Alio_prpr
+部分作修改。
 ```
 pip3 install qqwry-py3 requests qqwry
 
