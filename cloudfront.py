@@ -24,8 +24,8 @@ session.keep_alive = False
 session.mount('https://', HTTPAdapter())
 session.mount('http://', HTTPAdapter())
 
-if not os.path.exists('result'):
-		os.makedirs('result')
+if not os.path.exists('results'):
+		os.makedirs('results')
 
 def UsePlatform():
     global runos
@@ -145,7 +145,7 @@ def wrtIpInfo(host, servertext2):
 def ping_ip():
     # if len(regex) == 0:
     #     print("%s%s UP" % (ret_time(), ip))
-    #     ptime = ptime_reg.findall(result)
+    #     ptime = ptime_reg.findall(results)
     #     print(ptime)
     #     time.sleep(100)
     while not IP_QUEUE_LIST.empty():
@@ -207,8 +207,8 @@ if __name__ == '__main__':
    
     try:
         SETTHREAD = sys.argv[2]
-        ip_file = open("./result/IP-%s段.txt" % sys.argv[1].split('-')[0], "w")
-        ip_info_file = open("./result/IP归属地-%s段.txt" % sys.argv[1].split('-')[0], "w")
+        ip_file = open("./results/IP-%s段.txt" % sys.argv[1].split('-')[0], "w")
+        ip_info_file = open("./results/IP归属地-%s段.txt" % sys.argv[1].split('-')[0], "w")
         iplist = ip_range(sys.argv[1].split('-')[0], sys.argv[1].split('-')[1])
         print("%sScan IP:%s Thread:%s" % (ret_time(), sys.argv[1], sys.argv[2]))
         print(ret_time() + 'Will scan ' + str(len(iplist)) + " host .. Sleep 1sec...\n")
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     start_time = time.time()
     IP_QUEUE_LIST = Queue()
     ping_ip_retdic = {}
-    with open("./result/IP-%s段.txt" % sys.argv[1].split('-')[0], mode="r", encoding="utf-8") as ip_file_pt:
+    with open("./results/IP-%s段.txt" % sys.argv[1].split('-')[0], mode="r", encoding="utf-8") as ip_file_pt:
         for ip_line in ip_file_pt:
             print("%sRead IP:%s" % (ret_time(), ip_line.strip('\n')))
             IP_QUEUE_LIST.put(ip_line.strip('\n'))
@@ -258,13 +258,14 @@ if __name__ == '__main__':
     ping_ip_retdic_sort = sorted(ping_ip_retdic.items(), key=lambda ip_item: ip_item[1][0], reverse=False)
     # print(ping_ip_retdic_sort)
     print('%sPing执行所用时间：%s' % (ret_time(), time.time() - start_time))
-    with open("./result/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0], "w") as ping_file:
+    with open("./results/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0], "w") as ping_file:
     	for ip_line in ping_ip_retdic_sort:
             ping_file.write("%s     %s    %s\n" % (ip_line[0], ip_line[1][0], ip_line[1][1]))
             print("%s Write file:%s     %s   %s" % (ret_time(), ip_line[0], ip_line[1][0], ip_line[1][1]))
-    if not os.path.getsize("./result/IP-%s段.txt" % sys.argv[1].split('-')[0]):
-    	os.remove("./result/IP-%s段.txt" % sys.argv[1].split('-')[0])
-    	os.remove("./result/IP归属地-%s段.txt" % sys.argv[1].split('-')[0])
-    	os.remove("./result/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0])
+    # delete null file
+    if not os.path.getsize("./results/IP-%s段.txt" % sys.argv[1].split('-')[0]):
+    	os.remove("./results/IP-%s段.txt" % sys.argv[1].split('-')[0])
+    	os.remove("./results/IP归属地-%s段.txt" % sys.argv[1].split('-')[0])
+    	os.remove("./results/IP-Ping-%s段.txt" % sys.argv[1].split('-')[0])
     print('%sExit...' % ret_time())
     sys.exit()
