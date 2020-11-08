@@ -3,34 +3,14 @@
 #More: https://03k.org/dnspod-ddns-with-bashshell.html
 #CONF START
 
-while getopts ":i:t:d:h:l:" opt; do
-  case "$opt" in
-  i)
-    API_ID=${OPTARG:-12345}
-    ;;
-  t)
-    API_Token=${OPTARG:-abcdefghijklmnopq2333333}
-    ;;
-  d)
-    domain=${OPTARG:-example.com}
-    ;;
-  h)
-    host=${OPTARG:-home}
-    ;;
-  l)
-    ttl=${OPTARG:-600}
-    ;;
-  *)
-    echo "
-      -i API_ID
-      -t API_Token
-      -d domain
-      -h host
-      -l ttl default 600
-      "
-    ;;
-  esac
-done
+if (( $# != 0 )); then
+  API_ID=$1
+  API_Token=$2
+  domain=$3
+  host=$4
+  ttl=$5
+fi
+
 
 # echo "${API_ID}、${API_Token}、${domain}、${host}、${ttl}"
 

@@ -228,7 +228,7 @@ install_docker() {
     rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
     systemctl start docker >/dev/null && echo -e "${info}docker安装完成"
   else
-    echo -e "${info}已安装Docker !"
+    echo -e "${info}Docker已安装 !"
   fi
 }
 
@@ -452,40 +452,41 @@ nat() {
   ./nat.sh
 }
 
-ddns() {
+dnspod() {
   cd $fder
-  local ddns_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns.sh
-  local ddns_line_link=https://raw.githubusercontent.com/Lnkstls/ddns-dnspod/master/dnspod_ddns_line.sh
+  local dnspod_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/dnspod.sh
+  local dnspod_line_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/dnspod_line.sh
   echo -e "
 \033[2A
 ——————————————————————————————
 ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
-  read -p "请输入数字: " ddns_re
-  case "$ddns_re" in
+  read -p "请输入数字: " dnspod_re
+  case "$dnspod_re" in
   1)
-    if [ ! -e "ddns.sh" ]; then
-      wget --no-check-certificate -O ddns.sh ${ddns_link} && chmod +x ddns.sh
+    if [ ! -e "dnspod.sh" ]; then
+      wget --no-check-certificate -O dnspod.sh ${dnspod_link} && chmod +x dnspod.sh
     fi
     read -p "请输入APP_ID: " APP_ID
     read -p "请输入APP_Token: " APP_Token
     read -p "请输入Domain: " domain
     read -p "请输入Host: " host
     read -p "请输入TTL(默认600): " ttl
-    ./ddns.sh -i $APP_ID -t $APP_Token -d $domain -h $host -ttl $ttl &&
-      add_crontab "* * * * * bash $(pwd)/ddns.sh -i ${APP_ID} -t ${APP_Token} -d ${domain} -h ${host} -ttl ${ttl} >$(pwd)/ddns.log"
+    ttl=${ttl:-600}
+    ./dnspod.sh $APP_ID $APP_Token $domain $host $ttl &&
+      add_crontab "* * * * * bash $(pwd)/dnspod.sh ${APP_ID} ${APP_Token} ${domain} ${host} ${ttl} >$(pwd)/dnspod.log"
     ;;
   2)
-    if [ ! -e "ddns_line.sh" ]; then
-      wget --no-check-certificate -O ddns_line.sh ${ddns_line_link} && chmod +x ddns_line.sh
+    if [ ! -e "dnspod_line.sh" ]; then
+      wget --no-check-certificate -O dnspod.sh ${dnspod_line_link} && chmod +x dnspod_line.sh
     fi
-    vim ddns_line.sh
+    vim dnspod_line.sh
     ;;
   *)
     echo "${error}输入错误 !"
     sleep 3s
-    ddns
+    dnspod
     ;;
   esac
 }
@@ -584,7 +585,7 @@ Ctrl+C 退出" && echo
     nat
     ;;
   15)
-    ddns
+    dnspod
     ;;
   16)
     besttrace
