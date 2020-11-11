@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.80"
+sh_ver="0.81"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -511,6 +511,34 @@ haproxy() {
   ./haproxy.sh
 }
 
+network_opt() {
+  if cat /etc/security/limits.conf | grep -Eqi "soft nofile|soft noproc "; then
+    echo -e "${error}已优化limits !"
+  else
+    echo "*   soft noproc   65535  
+*   hard noproc   65535  
+*   soft nofile   65535  
+*   hard nofile   65535" >>/etc/security/limits.conf && echo -e "${info}limits设置完成 !"
+  fi
+  if cat /etc/profile | grep -Eqi "ulimit -u 65535"; then
+    echo -e "${error}已优化profile !"
+  else
+    echo "ulimit -u 65535  
+ulimit -n 65535
+ulimit -d unlimited  
+ulimit -m unlimited  
+ulimit -s unlimited  
+ulimit -t unlimited  
+ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
+  fi
+  read -p "需要重启VPS后，才能全局生效，是否现在重启 ? [Y/n] :" yn
+	[ -z "${yn}" ] && yn="y"
+	if [[ $yn == [Yy] ]]; then
+		echo -e "${Info}重启中..."
+		reboot
+	fi
+}
+
 start_menu() {
   clear
   echo && echo -e "Author: by @Lnkstls
@@ -535,6 +563,7 @@ ${font_color_up}14.${font_color_end} nat脚本
 ${font_color_up}15.${font_color_end} ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end} bettrace路由测试
 ${font_color_up}17.${font_color_end} Haproxy脚本
+${font_color_up}18.${font_color_end} 网络优化(实验性)
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
@@ -592,6 +621,9 @@ Ctrl+C 退出" && echo
     ;;
   17)
     haproxy
+    ;;
+  18)
+    network_opt
     ;;
   *)
     echo -e "${error}输入错误 !"
