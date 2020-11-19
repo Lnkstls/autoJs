@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.81"
+sh_ver="0.82"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -47,15 +47,6 @@ fi
 
 Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
-# if [ "${Distributor}" = "Debian" ] || [ "${Distributor}" = "Ubuntu" ]; then
-#   commad="apt"
-# elif [ "${Distributor}" = "CentOS" ]; then
-#   commad="yum"
-# else
-#   echo -e "${note}不支持的系统 !"
-#   commad="apt"
-# fi
-
 update_sh() {
   local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
   echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
@@ -67,7 +58,7 @@ update_sh() {
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
       wget -O poseidon.sh "${github}/poseidon.sh" && chmod +x poseidon.sh
-      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!"
+      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!" && exit 0
     else
       echo && echo "${info}已取消..." && echo
     fi
@@ -248,8 +239,8 @@ set_tcp_config() {
 
   read -p "容器名称(默认v2ray-tcp): " dc_name
   dc_name=${dc_name:-v2ray-tcp}
-  read -p "服务端口(默认80): " dc_port
-  dc_port=${dc_port:-80}
+  read -p "服务端口(80:80): " dc_port
+  dc_port=${dc_port:-80:80}
 
   if [ -d "$dc_name" ]; then
     echo -e "${error}容器名称重复 !"
@@ -260,10 +251,8 @@ set_tcp_config() {
   mkdir $dc_name
   cd $dc_name
   if [ -n "$webapi" -a -n "$token" ]; then
-    wget -nv -O config.json $tcp_config
-    cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
-    wget -O docker-compose.yml $docker_tcp_config
-    cat docker-compose.yml | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口/${dc_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $tcp_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
+    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口:服务端口/${dc_port}/g" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -289,10 +278,8 @@ set_ws_config() {
 
   read -p "容器名称(默认v2ray-ws): " dc_name
   dc_name=${dc_name:-v2ray-ws}
-  read -p "连接端口(默认80): " dc_port
-  dc_port=${dc_port:-80}
-  read -p "服务端口(默认10086): " ser_port
-  ser_port=${ser_port:-10086}
+  read -p "连接端口(80:10086): " dc_port
+  dc_port=${dc_port:-80:10086}
 
   if [ -d "$dc_name" ]; then
     echo -e "${error}容器名称重复 !"
@@ -304,10 +291,9 @@ set_ws_config() {
   cd $dc_name
 
   if [ -n "$webapi" -a -n "$token" ]; then
-    wget -O config.json $ws_config
-    cat config.json | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json.$$ && mv config.json.$$ config.json
+    curl -sSL $ws_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
     wget -O docker-compose.yml $docker_ws_config
-    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml.$$ && mv docker-compose.yml.$$ docker-compose.yml && echo -e "${info}配置文件完成"
+    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -372,7 +358,7 @@ install_hot() {
   wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 update_poseidon() {
-  if [[ $(docker pull v2cc/poseidon:latest) = *"Image is up to date"* ]]; then
+  if [[ $(docker pull v2cc/poseidon:latest) == *"Image is up to date"* ]]; then
     docker images --digests
     echo -e "${info}已是最新版本 !"
   else
@@ -405,7 +391,7 @@ time_up() {
 }
 
 reboot_time() {
-  if [[ $(crontab -l) = *reboot* ]]; then
+  if [[ $(crontab -l) == *reboot* ]]; then
     echo -e "${note}已存在reboot !"
     crontab -l
   fi
@@ -532,11 +518,11 @@ ulimit -t unlimited
 ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
   fi
   read -p "需要重启VPS后，才能全局生效，是否现在重启 ? [Y/n] :" yn
-	[ -z "${yn}" ] && yn="y"
-	if [[ $yn == [Yy] ]]; then
-		echo -e "${Info}重启中..."
-		reboot
-	fi
+  [ -z "${yn}" ] && yn="y"
+  if [[ $yn == [Yy] ]]; then
+    echo -e "${Info}重启中..."
+    reboot
+  fi
 }
 
 start_menu() {
@@ -635,7 +621,7 @@ Ctrl+C 退出" && echo
 
 ARGS=$(getopt -a -o :s:h -l source::,help -- "$@")
 eval set -- "$ARGS"
-for opt in $@; do
+for opt in "$@"; do
   case $opt in
   -s | --all)
     shift
