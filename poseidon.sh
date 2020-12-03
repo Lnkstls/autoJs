@@ -2,13 +2,14 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.82"
+sh_ver="0.83"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[警告]: \033[0m"
 fder="./JsSet"
+lnkstls_link="https://js.clapse.com"
 
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
@@ -120,27 +121,14 @@ soucn() {
         deb-src https://mirrors.cloud.tencent.com/debian-security buster/updates main contrib non-free" >/etc/apt/sources.list
       ;;
     *)
-      echo -e "${error}未匹配到系统 !" && exit 1
+      echo -e "${error}未匹配到对应系统源,仅支持LTS版本 !" && exit 1
       ;;
     esac
   elif [ "$Distributor" = "Ubuntu" ]; then
     cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
     case $Release in
-    14.04)
-      echo -e "${info}写入ubuntu14.04 !"
-      echo "deb http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-updates main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-security main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-backports main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu trusty-proposed main restricted universe multiverse" >/etc/apt/sources.list
-      ;;
     16.04)
-      echo -e "${info}写入ubuntu16.04 !"
+      echo -e "${info}写入ubuntu16.04源 !"
       echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
         deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
         deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
@@ -151,19 +139,35 @@ soucn() {
         deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
         #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
         #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+      ;;
+    18.04)
+      echo -e "${note}写入ubuntu18.04源 !"
+      echo "deb http://mirrors.cloud.tencent.com/ubuntu/ bionic main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ bionic-security main restricted universe multiverse
+        deb http://mirrors.cloud.tencent.com/ubuntu/ bionic-updates main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ bionic-proposed main restricted universe multiverse
+        #deb http://mirrors.cloud.tencent.com/ubuntu/ bionic-backports main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ bionic main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ bionic-security main restricted universe multiverse
+        deb-src http://mirrors.cloud.tencent.com/ubuntu/ bionic-updates main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ bionic-proposed main restricted universe multiverse
+        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ bionic-backports main restricted universe multiverse" >/etc/apt/sources.list
+      ;;
+    20.04)
+      echo -e "${note}写入ubuntu18.04源 !"
+      echo "deb http://mirrors.cloud.tencent.com/ubuntu/ focal main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ focal-security main restricted universe multiverse
+deb http://mirrors.cloud.tencent.com/ubuntu/ focal-updates main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ focal-proposed main restricted universe multiverse
+#deb http://mirrors.cloud.tencent.com/ubuntu/ focal-backports main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal-security main restricted universe multiverse
+deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal-updates main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal-proposed main restricted universe multiverse
+#deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal-backports main restricted universe multiverse" >/etc/apt/sources.list
       ;;
     *)
-      echo -e "${note}默认写入ubuntu16.4 !"
-      echo "deb http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-security main restricted universe multiverse
-        deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-updates main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-proposed main restricted universe multiverse
-        #deb-src http://mirrors.cloud.tencent.com/ubuntu/ xenial-backports main restricted universe multiverse" >/etc/apt/sources.list
+      echo -e "${error}未匹配到对应系统源,仅支持LTS版本 !" && exit 1
       ;;
     esac
   elif [ "$Distributor" = "CentOS" ]; then
@@ -176,6 +180,9 @@ soucn() {
     8)
       echo -e "${info}写入centos8 !"
       wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
+      ;;
+    *)
+      echo -e "${error}未匹配到对应系统源,仅支持LTS版本 !" && exit 1
       ;;
     esac
   else
@@ -252,7 +259,7 @@ set_tcp_config() {
   cd $dc_name
   if [ -n "$webapi" -a -n "$token" ]; then
     curl -sSL $tcp_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
-    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口:服务端口/${dc_port}/g" >docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口:服务端口/${dc_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -293,7 +300,7 @@ set_ws_config() {
   if [ -n "$webapi" -a -n "$token" ]; then
     curl -sSL $ws_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
     wget -O docker-compose.yml $docker_ws_config
-    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" >docker-compose.yml && echo -e "${info}配置文件完成"
+    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -402,10 +409,6 @@ reboot_time() {
 
 superspeed() {
   cd $fder
-  if [ ! $(command -v screen) ]; then
-    echo -e "${info}安装 screen"
-    ${commad} -y install screen
-  fi
   superspeed_link="https://git.io/superspeed"
   wget --no-check-certificate -O superspeed.sh ${superspeed_link} && chmod +x superspeed.sh
   ./superspeed.sh
@@ -440,8 +443,8 @@ nat() {
 
 dnspod() {
   cd $fder
-  local dnspod_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/dnspod.sh
-  local dnspod_line_link=https://raw.githubusercontent.com/Lnkstls/autoJs/master/dnspod_line.sh
+  local dnspod_link="${lnkstls_link}/dnspod.sh"
+  local dnspod_line_link="${lnkstls_link}/dnspod_line.sh"
   echo -e "
 \033[2A
 ——————————————————————————————
@@ -490,7 +493,7 @@ besttrace() {
 }
 
 haproxy() {
-  local haproxy_link="https://raw.githubusercontent.com/Lnkstls/autoJs/master/haproxy.sh"
+  local haproxy_link="${lnkstls_link}/haproxy.sh"
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod +x haproxy.sh
   fi
@@ -550,6 +553,7 @@ ${font_color_up}15.${font_color_end} ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end} bettrace路由测试
 ${font_color_up}17.${font_color_end} Haproxy脚本
 ${font_color_up}18.${font_color_end} 网络优化(实验性)
+${font_color_up}19.${font_color_end} 安装Gost
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
@@ -678,6 +682,9 @@ fi
 if [ ! $(command -v iperf3) ]; then
   echo -e "${info}安装依赖 iperf3"
   ${commad} -y install iperf3
+fiif [ ! $(command -v screen) ]; then
+  echo -e "${info}安装依赖 screen"
+  ${commad} -y install screen
 fi
 
 start_menu
