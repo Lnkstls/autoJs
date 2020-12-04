@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.83"
+sh_ver="0.84"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -88,7 +88,7 @@ soucn() {
     cp -f /etc/apt/sources.list /etc/apt/sources.list.bakup
     case $Release in
     8)
-      echo -e "${info}写入Debian8 !"
+      echo -e "${info}写入Debian8源 !"
       echo "deb http://mirrors.cloud.tencent.com/debian jessie main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian jessie-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian jessie-backports main contrib non-free
@@ -99,7 +99,7 @@ soucn() {
         #deb-src http://mirrors.cloud.tencent.com/debian jessie-proposed-updates main contrib non-free" >/etc/apt/sources.list
       ;;
     9)
-      echo -e "${info}写入Debian9 !"
+      echo -e "${info}写入Debian9源 !"
       echo "deb http://mirrors.cloud.tencent.com/debian stretch main contrib non-free
         deb http://mirrors.cloud.tencent.com/debian stretch-updates main contrib non-free
         #deb http://mirrors.cloud.tencent.com/debian stretch-backports main contrib non-free
@@ -110,7 +110,7 @@ soucn() {
         #deb-src http://mirrors.cloud.tencent.com/debian stretch-proposed-updates main contrib non-free" >/etc/apt/sources.list
       ;;
     10)
-      echo -e "${info}写入Debian10 !"
+      echo -e "${info}写入Debian10源 !"
       echo "deb https://mirrors.cloud.tencent.com/debian/ buster main contrib non-free
         deb https://mirrors.cloud.tencent.com/debian/ buster-updates main contrib non-free
         deb https://mirrors.cloud.tencent.com/debian/ buster-backports main contrib non-free
@@ -174,11 +174,11 @@ deb-src http://mirrors.cloud.tencent.com/ubuntu/ focal-updates main restricted u
     cp -f /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.bakup
     case $Release in
     7)
-      echo -e "${info}写入centos7 !"
+      echo -e "${info}写入centos7源 !"
       wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos7_base.repo
       ;;
     8)
-      echo -e "${info}写入centos8 !"
+      echo -e "${info}写入centos8源 !"
       wget -O /etc/yum.repos.d/CentOS-Base.repo http://mirrors.cloud.tencent.com/repo/centos8_base.repo
       ;;
     *)
@@ -682,7 +682,8 @@ fi
 if [ ! $(command -v iperf3) ]; then
   echo -e "${info}安装依赖 iperf3"
   ${commad} -y install iperf3
-fiif [ ! $(command -v screen) ]; then
+fi
+if [ ! $(command -v screen) ]; then
   echo -e "${info}安装依赖 screen"
   ${commad} -y install screen
 fi
