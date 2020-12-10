@@ -2,12 +2,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.1"
+sh_ver="0.2"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[警告]: \033[0m"
+lnkstls_link="https://js.clapse.com"
 
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
@@ -47,17 +48,16 @@ fi
 Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 update_sh() {
-  local github="https://raw.githubusercontent.com/Lnkstls/autoJs/master/"
   uname="gost"
   echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-  local sh_new_ver=$(wget -qO- "${github}/${uname}.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+  local sh_new_ver=$(wget -qO- "${lnkstls_link}/${uname}.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
     read -p "(默认: y): " yn
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
-      wget "${github}/${uname}.sh" && chmod +x ${uname}.sh
+      wget "${lnkstls_link}/${uname}.sh" && chmod +x ${uname}.sh
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!" && exit 0
     else
       echo && echo "${info}已取消..." && echo
