@@ -84,10 +84,13 @@ ginuerzh_gost() {
       echo -e "${note}deamon.json文件存在 !"
     else
       read -p "加速地址(不需要则回车): " num
-      echo "{"registry-mirrors": ["${num}"]}" >/etc/docker/deamon.json
+      if [[ -n $num ]]; then
+        echo "{"registry-mirrors": ["${num}"]}" >/etc/docker/deamon.json
+        systemctl restart docker
+      fi
     fi
   fi
-  systemctl restart docker && docker pull ginuerzh/gost
+  docker pull ginuerzh/gost
 }
 
 add_docker() {
