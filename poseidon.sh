@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.84"
+sh_ver="0.85"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -235,8 +235,8 @@ set_tcp_config() {
   local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
   read -p "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(必填): " webapi
-  read -p "token(必填): " token
+  read -p "webapi(http or https): " webapi
+  read -p "token: " token
   read -p "节点限速(默认0): " node_speed
   node_speed=${node_speed:-0}
   read -p "用户ip限制(默认0): " user_ip
@@ -274,8 +274,8 @@ set_ws_config() {
 
   read -p "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(必填): " webapi
-  read -p "token(必填): " token
+  read -p "webapi(http or https): " webapi
+  read -p "token: " token
   read -p "节点限速(默认0): " node_speed
   node_speed=${node_speed:-0}
   read -p "用户ip限制(默认0): " user_ip
@@ -300,7 +300,7 @@ set_ws_config() {
   if [ -n "$webapi" -a -n "$token" ]; then
     curl -sSL $ws_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
     wget -O docker-compose.yml $docker_ws_config
-    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80/${dc_port}/g" | sed "s/10086/${ser_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
+    cat docker-compose.yml | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80:10086/${dc_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -334,11 +334,6 @@ ${font_color_up}0.${font_color_end}返回上一步
     ;;
   2)
     set_ws_config
-    ;;
-  3)
-    echo -e "${error}暂不支持 !"
-    sleep 3s
-    install_poseidon
     ;;
   *)
     echo -e "${error}输入错误 !"
@@ -528,6 +523,12 @@ ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}pr
   fi
 }
 
+gost() {
+  local gost_link="${lnkstls_link}/gost.sh"
+  wget wget --no-check-certificate ${gost_link} && chmod +x gost.sh
+  ./gost.sh
+}
+
 start_menu() {
   clear
   echo && echo -e "Author: by @Lnkstls
@@ -553,7 +554,7 @@ ${font_color_up}15.${font_color_end} ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end} bettrace路由测试
 ${font_color_up}17.${font_color_end} Haproxy脚本
 ${font_color_up}18.${font_color_end} 网络优化(实验性)
-${font_color_up}19.${font_color_end} 安装Gost
+${font_color_up}19.${font_color_end} Gost脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
@@ -614,6 +615,9 @@ Ctrl+C 退出" && echo
     ;;
   18)
     network_opt
+    ;;
+  19)
+    gost
     ;;
   *)
     echo -e "${error}输入错误 !"
