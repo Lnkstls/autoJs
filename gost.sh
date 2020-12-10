@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.2"
+sh_ver="0.3"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -48,9 +48,9 @@ fi
 Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 update_sh() {
-  uname="gost"
+  uname="gost.sh"
   echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-  local sh_new_ver=$(wget -qO- "${lnkstls_link}/${uname}.sh" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+  local sh_new_ver=$(wget -qO- "${lnkstls_link}/${uname}" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
@@ -58,12 +58,12 @@ update_sh() {
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
       wget "${lnkstls_link}/${uname}.sh" && chmod +x ${uname}.sh
-      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ]!" && exit 0
+      echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
     else
       echo && echo "${info}已取消..." && echo
     fi
   else
-    echo -e "${info}当前已是最新版本[ ${sh_new_ver} ]!"
+    echo -e "${info}当前已是最新版本[ ${sh_new_ver} ] !"
     sleep 5s
     start_menu
   fi
@@ -85,7 +85,7 @@ ginuerzh_gost() {
     else
       read -p "加速地址(不需要则回车): " num
       if [[ -n $num ]]; then
-        echo "{"registry-mirrors": ["${num}"]}" >/etc/docker/deamon.json
+        echo "{\"registry-mirrors\": [\"${num}\"]}" >/etc/docker/deamon.json
         systemctl restart docker
       fi
     fi
