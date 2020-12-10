@@ -102,6 +102,9 @@ add_docker() {
   if (($(docker images -a | grep -Ei "ginuerzh/gost" | wc -l) == 0)); then
     echo -e "${info}拉取镜像"
     ginuerzh_gost
+    if [[ $? != 0 ]]; then
+        echo -e "${error}拉取失败 !" && exit 1
+    fi
   fi
   read -p "昵称: " name
   read -p "操作(-L and -F): " content
