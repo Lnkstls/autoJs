@@ -15,38 +15,34 @@ if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-arch='uname -m'
-# Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
-# Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
+Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 if [ "$arch" = "x86_64" ]; then
   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
 fi
 if [[ -f /etc/redhat-release ]]; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 elif cat /etc/issue | grep -Eqi "debian"; then
   Distributor="Debian"
-  commad="apt"
+  Commad="apt"
 elif cat /etc/issue | grep -Eqi "ubuntu"; then
   Distributor="Ubuntu"
-  commad="apt"
+  Commad="apt"
 elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 elif cat /proc/version | grep -Eqi "debian"; then
   Distributor="Debian"
-  commad="apt"
+  Commad="apt"
 elif cat /proc/version | grep -Eqi "ubuntu"; then
-  release="Ubuntu"
-  commad="apt"
+  Distributor="Ubuntu"
+  Commad="apt"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 else
   echo -e "${error}未检测到系统版本！" && exit 1
 fi
-
-Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 update_sh() {
   uname="poseidon.sh"
@@ -72,7 +68,7 @@ update_sh() {
 
 upcs() {
   echo -e "${info}更新列表 update"
-  ${commad} update -y && echo -e "${info}更新完成 !"
+  ${Commad} update -y && echo -e "${info}更新完成 !"
 }
 
 add_crontab() {
@@ -386,7 +382,7 @@ ddserver() {
 
 time_up() {
   if [ ! $(command -v ntpdate) ]; then
-    ${commad} -y install ntpdate
+    ${Commad} -y install ntpdate
   fi
   timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
   timedatectl
@@ -477,20 +473,16 @@ ${font_color_up}2.${font_color_end} 网卡获取
 
 besttrace() {
   cd $fder
-  local besttrace_link="https://cdn.ipip.net/17mon/besttrace4linux.zip"
   if [ ! -e "besttrace" ]; then
-    wget --no-check-certificate -O besttrace.zip $besttrace_link &&
-      unzip besttrace.zip "besttrace" &&
-      chmod +x besttrace &&
-      rm -f besttracelinux.zip
+    wget --no-check-certificate "${lnkstls_link}/besttrace" && chmod +x besttrace
   fi
-  ./besttrace
+  read -p "测试ip: " ip
+  ./besttrace -g cn $ip
 }
 
 haproxy() {
-  local haproxy_link="${lnkstls_link}/haproxy.sh"
-  if [ ! -e "besttrace" ]; then
-    wget --no-check-certificate -O haproxy.sh $haproxy_link && chmod +x haproxy.sh
+  if [ ! -e "haproxy.sh" ]; then
+    wget --no-check-certificate "${lnkstls_link}/haproxy.sh"&& chmod +x haproxy.sh
   fi
   ./haproxy.sh
 }
@@ -667,31 +659,31 @@ if [ ! -d "$fder" ]; then
 fi
 if [ ! $(command -v sudo) ]; then
   echo -e "${info}安装依赖 sudo"
-  ${commad} -y install sudo
+  ${Commad} -y install sudo
 fi
 if [ ! $(command -v wget) ]; then
   echo -e "${info}安装依赖 wget"
-  ${commad} -y install wget
+  ${Commad} -y install wget
 fi
 if [ ! $(command -v vim) ]; then
   echo -e "${info}安装依赖 vim"
-  ${commad} -y install vim
+  ${Commad} -y install vim
 fi
 if [ ! $(command -v unzip) ]; then
   echo -e "${info}安装依赖 unzip"
-  ${commad} -y install unzip
+  ${Commad} -y install unzip
 fi
 if [ ! $(command -v curl) ]; then
   echo -e "${info}安装依赖 curl"
-  ${commad} -y install curl
+  ${Commad} -y install curl
 fi
 if [ ! $(command -v iperf3) ]; then
   echo -e "${info}安装依赖 iperf3"
-  ${commad} -y install iperf3
+  ${Commad} -y install iperf3
 fi
 if [ ! $(command -v screen) ]; then
   echo -e "${info}安装依赖 screen"
-  ${commad} -y install screen
+  ${Commad} -y install screen
 fi
 
 start_menu

@@ -14,38 +14,34 @@ if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-arch='uname -m'
-# Distributor=$(lsb_release -a 2>/dev/null | grep "Distributor" | awk '{print $NF}')
-# Release=$(lsb_release -a 2>/dev/null | grep "Release" | awk '{print $NF}')
+Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 if [ "$arch" = "x86_64" ]; then
   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
 fi
 if [[ -f /etc/redhat-release ]]; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 elif cat /etc/issue | grep -Eqi "debian"; then
   Distributor="Debian"
-  commad="apt"
+  Commad="apt"
 elif cat /etc/issue | grep -Eqi "ubuntu"; then
   Distributor="Ubuntu"
-  commad="apt"
+  Commad="apt"
 elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 elif cat /proc/version | grep -Eqi "debian"; then
   Distributor="Debian"
-  commad="apt"
+  Commad="apt"
 elif cat /proc/version | grep -Eqi "ubuntu"; then
-  release="Ubuntu"
-  commad="apt"
+  Distributor="Ubuntu"
+  Commad="apt"
 elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
-  commad="yum"
+  Commad="yum"
 else
   echo -e "${error}未检测到系统版本！" && exit 1
 fi
-
-Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 
 update_sh() {
   uname="gost.sh"
@@ -112,6 +108,10 @@ add_docker() {
     echo -e "${info}创建成功 !"
 }
 
+status_docker() {
+  docker ps -a --no-trunc | grep ginuerzh/gost
+}
+
 start_menu() {
   echo && echo -e "Author: by @Lnkstls
 当前版本: [${sh_ver}]
@@ -119,8 +119,9 @@ start_menu() {
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
 ${font_color_up}1.${font_color_end} 创建隧道(Docker)
+${font_color_up}2.${font_color_end} 查看隧道(Docker)
 ——————————————————————————————
-Ctrl+c 退出" && echo
+Ctrl+C 退出" && echo
   read -p "请输入数字: " num
   case "$num" in
   0)
@@ -128,6 +129,9 @@ Ctrl+c 退出" && echo
     ;;
   1)
     add_docker
+    ;;
+  2)
+    status_docker
     ;;
   esac
 }
