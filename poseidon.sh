@@ -363,13 +363,6 @@ update_poseidon() {
     docker restart $(docker ps -aq) && echo -e "${info}更新完成 !"
   fi
 }
-de_routing() {
-  cd $fder
-  if [ ! -e "fastbesttrace.sh" ]; then
-    wget --no-check-certificate -O fastbesttrace.sh git.io/besttrace && chmod +x fastbesttrace.sh
-  fi
-  ./besttrace.sh
-}
 
 ddserver() {
   cd $fder
@@ -388,15 +381,6 @@ time_up() {
   timedatectl
 }
 
-reboot_time() {
-  if [[ $(crontab -l) == *reboot* ]]; then
-    echo -e "${note}已存在reboot !"
-    crontab -l
-  fi
-  read -p "每月重启时间(分 时 日 月 星期):" rt_time
-  rt_time=${reboot_time:-1}
-  add_crontab "${rt_time} bash reboot"
-}
 
 superspeed() {
   cd $fder
@@ -476,7 +460,7 @@ besttrace() {
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate "${lnkstls_link}/besttrace" && chmod +x besttrace
   fi
-  read -p "测试ip: " ip
+  read -p "IP or 域名: " ip
   ./besttrace -g cn $ip
 }
 
@@ -537,10 +521,8 @@ ${font_color_up}4.${font_color_end} 更新poseidon(docker版)
 ${font_color_up}5.${font_color_end} 宝塔安装脚本(py3版)
 ${font_color_up}6.${font_color_end} 卸载宝塔脚本
 ${font_color_up}7.${font_color_end} Hotaru探针脚本
-${font_color_up}8.${font_color_end} 快速国内回程测试脚本
 ${font_color_up}9.${font_color_end} 一键dd系统脚本(萌咖)
 ${font_color_up}10.${font_color_end} 设置上海时区并对齐
-${font_color_up}11.${font_color_end} 设置每月定时重启任务
 ${font_color_up}12.${font_color_end} 国内测速脚本(Superspeed)
 ${font_color_up}13.${font_color_end} 安装speedtest
 ${font_color_up}14.${font_color_end} nat脚本
@@ -577,17 +559,11 @@ Ctrl+C 退出" && echo
   7)
     install_hot
     ;;
-  8)
-    de_routing
-    ;;
   9)
     ddserver
     ;;
   10)
     time_up
-    ;;
-  11)
-    reboot_time
     ;;
   12)
     superspeed
