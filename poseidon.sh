@@ -157,7 +157,7 @@ set_ws_config() {
   fi
 }
 
-install_poseidon() {
+add_docker() {
   if [ ! -e "v2" ]; then
     mkdir v2
   fi
