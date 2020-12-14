@@ -8,7 +8,7 @@ font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[警告]: \033[0m"
-fder="./JsSet"
+lnkstls_link="https://raw.githubusercontent.com/Lnkstls/autoJs/master"
 
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
