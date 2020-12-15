@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.87"
+sh_ver="0.88"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -54,7 +54,7 @@ update_sh() {
     read -p "(默认: y): " yn
     [[ -z "${yn}" ]] && yn="y"
     if [[ ${yn} == [Yy] ]]; then
-      wget "${lnkstls_link}/${uname}.sh" && chmod +x ${uname}.sh
+      wget "${lnkstls_link}/${uname}" && chmod +x ${uname}
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
     else
       echo && echo "${info}已取消..." && echo
@@ -214,13 +214,19 @@ wget_bbr() {
 }
 
 install_docker() {
+  #  if [ ! $(command -v docker) ]; then
+  #    echo -e "${info}开始安装docker..."
+  #    curl -fsSL https://get.docker.com | bash &&
+  #      curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  #    chmod a+x /usr/local/bin/docker-compose
+  #    rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
+  #    systemctl start docker >/dev/null && echo -e "${info}Docker安装完成"
+  #  else
+  #    echo -e "${info}Docker已安装 !"
+  #  fi
   if [ ! $(command -v docker) ]; then
     echo -e "${info}开始安装docker..."
-    curl -fsSL https://get.docker.com | bash
-    curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod a+x /usr/local/bin/docker-compose
-    rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
-    systemctl start docker >/dev/null && echo -e "${info}docker安装完成"
+    ${Commad} -y install docker-ce && echo -e "${info}Docker安装完成 !"
   else
     echo -e "${info}Docker已安装 !"
   fi
