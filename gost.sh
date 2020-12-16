@@ -73,7 +73,10 @@ install_docker() {
   #  systemctl start docker >/dev/null && echo -e "${info}docker安装完成 !"
   if [ ! $(command -v docker) ]; then
     echo -e "${info}开始安装docker..."
-    ${Commad} -y install docker-ce && echo -e "${info}Docker安装完成 !"
+    ${Commad} -y install docker-ce &&
+      rm -f $(which dc) &&
+      ln -s /usr/local/bin/docker-compose /usr/bin/dc &&
+      echo -e "${info}Docker安装完成 !"
   else
     echo -e "${info}Docker已安装 !"
   fi
