@@ -252,7 +252,18 @@ poseidon() {
   ./poseidon.sh
 }
 
-vnstat() {
+vnstatcont() {
+  if [ ! $(command -v vnstat) ]; then
+    echo -e "${info}安装依赖 vnstat"
+    ${Commad} -y install vnstat
+    vnstat --iflist
+    read -p "选择网络接口(默认eth0): " eth
+    eth=${eth:-eth0}
+    vnstat -u -i $eth
+    if (($? != 0)); then
+      echo -e "${error}错误 !" && exit 1
+    fi
+  fi
   cd $fder
   local vnstat_link="${lnkstls_link}/vnstat.sh"
   if [ ! -e vnstat.sh ]; then
@@ -469,7 +480,7 @@ Ctrl+C 退出" && echo
     poseidon
     ;;
   4)
-    vnstat
+    vnstatcont
     ;;
   5)
     install_bt
