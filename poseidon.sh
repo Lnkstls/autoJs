@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.03"
+sh_ver="0.04"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -202,7 +202,7 @@ update_poseidon() {
     docker images --digests
     echo -e "${info}已是最新版本 !"
   else
-    docker restart $(docker ps -aq) && echo -e "${info}更新完成 !"
+    echo -e "${info}更新完成 !"
   fi
 }
 
@@ -213,7 +213,7 @@ start_menu() {
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
 ${font_color_up}1.${font_color_end} 创建poseidon(docker版)
-${font_color_up}2.${font_color_end} 更新poseidon(docker版)
+${font_color_up}2.${font_color_end} 更新poseidon镜像(docker版)
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
@@ -225,7 +225,7 @@ Ctrl+C 退出" && echo
     install_docker &&
       add_docker
     ;;
-  1)
+  2)
     update_poseidon
     ;;
   esac
