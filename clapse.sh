@@ -73,7 +73,7 @@ upcs() {
 
 add_crontab() {
   if [[ $(crontab -l) == *$1* ]]; then
-    echo -e "${note}已存在, 是否继续?[N/n]"
+    echo -e "${note}已存在, 是否继续?[N/y]"
     crontab -l | grep "$1"
     read -p "默认(N):" num
     num=${num:-N}
