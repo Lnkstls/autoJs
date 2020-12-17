@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.88"
+sh_ver="0.89"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -51,8 +51,8 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认: y): " yn
-    [[ -z "${yn}" ]] && yn="y"
+    read -p "(默认Y): " yn
+    [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
       wget "${lnkstls_link}/${uname}" && chmod +x ${uname}
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
@@ -72,8 +72,17 @@ upcs() {
 }
 
 add_crontab() {
+  if [[ $(crontab -l) == *$1* ]]; then
+    echo -e "${note}已存在, 是否继续?[N/n]"
+    crontab -l | grep "$1"
+    read -p "默认(N):" num
+    num=${num:-N}
+    if [[ $num == "N" || $num == "n" ]]; then
+      exit 0
+    fi
+  fi
   crontab -l 2>/dev/null >$0.temp
-  echo "$*" >>$0.temp &&
+  echo "$1" >>$0.temp &&
     crontab $0.temp &&
     rm -f $0.temp &&
     echo -e "${info}添加crontab成功 !" && crontab -l
@@ -243,6 +252,22 @@ poseidon() {
   ./poseidon.sh
 }
 
+vnstat() {
+  cd $fder
+  local vnstat_link="${lnkstls_link}/vnstat.sh"
+  if [ ! -e vnstat.sh ]; then
+    wget --no-check-certificate $vnstat_link && chmod +x vnstat.sh
+  fi
+  read -p "重置日期(默认00): " time
+  time=${time:-00}
+  read -p "控制流量单位GB(默认1024): " gb
+  gb=${gb:-1024}
+  read -p "统计(默认0=所有, 1=上传, 2=下载)" range
+  range=${range:-0}
+  ./vnstat.sh $time $gb $range &&
+    add_crontab "* * * * * bash $(pwd)/vnstat.sh $time $gb $range >$(pwd)/vnstat.log"
+}
+
 install_bt() {
   cd $fder
   local bt_link="http://download.bt.cn/install/install_panel.sh"
@@ -326,7 +351,7 @@ ${font_color_up}2.${font_color_end} 网卡获取
   case "$dnspod_re" in
   1)
     if [ ! -e "dnspod.sh" ]; then
-      wget --no-check-certificate -O dnspod.sh ${dnspod_link} && chmod +x dnspod.sh
+      wget --no-check-certificate ${dnspod_link} && chmod +x dnspod.sh
     fi
     read -p "请输入APP_ID: " APP_ID
     read -p "请输入APP_Token: " APP_Token
@@ -413,6 +438,7 @@ ${font_color_up}0.${font_color_end}   升级脚本
 ${font_color_up}1.${font_color_end}   bbr安装脚本
 ${font_color_up}2.${font_color_end}   安装Docker、Docker-compose
 ${font_color_up}3.${font_color_end}   poseidon脚本
+${font_color_up}4.${font_color_end}   流量控制脚本
 ${font_color_up}5.${font_color_end}   宝塔安装脚本(py3版)
 ${font_color_up}6.${font_color_end}   卸载宝塔脚本
 ${font_color_up}7.${font_color_end}   Hotaru探针脚本
@@ -441,6 +467,9 @@ Ctrl+C 退出" && echo
     ;;
   3)
     poseidon
+    ;;
+  4)
+    vnstat
     ;;
   5)
     install_bt

@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.04"
+sh_ver="0.05"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -90,6 +90,7 @@ ginuerzh_gost() {
       read -p "加速地址(不需要则回车): " num
       if [[ -n $num ]]; then
         echo "{\"registry-mirrors\": [\"${num}\"]}" >/etc/docker/deamon.json
+        systemctl daemon-reload
         systemctl restart docker
       fi
     fi
