@@ -77,7 +77,7 @@ add_crontab() {
     crontab -l | grep "$1"
     read -p "默认(N):" num
     num=${num:-N}
-    if [[ $num == "N" || $num == "n" ]]; then
+    if [[ $num == [Nn] ]]; then
       exit 0
     fi
   fi
