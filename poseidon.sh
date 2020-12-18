@@ -199,7 +199,7 @@ ${font_color_up}0.${font_color_end} 返回上一步
 
 update_poseidon() {
   if [[ $(docker pull v2cc/poseidon:latest) == *"Image is up to date"* ]]; then
-    docker images --digests
+    docker images --digests | grep "v2cc/poseidon"
     echo -e "${info}已是最新版本 !"
   else
     echo -e "${info}更新完成 !"
