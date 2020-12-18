@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.89"
+sh_ver="0.90"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -282,13 +282,42 @@ vnstatcont() {
 install_bt() {
   cd $fder
   local bt_link="http://download.bt.cn/install/install_panel.sh"
-  curl -sSO ${bt_link} && bash install_panel.sh
+  if [ ! -e "install_panel.sh" ]; then
+    curl -sSO ${bt_link}
+  fi
+  bash install_panel.sh
 }
 
 rm_bt() {
   cd $fder
   local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
-  wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link} && bash bt_uninstall.sh
+  if [ ! -e "bt_uninstall.sh" ]; then
+    wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link}
+  fi
+  bash bt_uninstall.sh
+}
+
+cloudflare() {
+  if [ ! $(command -v gcc) ]; then
+    echo -e "${info}安装依赖 gcc"
+    ${Commad} -y install gcc
+  fi
+  if [ ! $(command -v make) ]; then
+    echo -e "${info}安装依赖 make"
+    ${Commad} -y install make
+  fi
+  cd $fder
+  local cloudflare_link="https://proxy.freecdn.workers.dev/?url=https://github.com/badafans/better-cloudflare-ip/releases/latest/download/linux.tar.gz"
+  if [ ! -e "linux.tar.gz" ]; then
+    wget --no-check-certificate -O linux.tar.gz $cloudflare_link &&
+      tar -zxf linux.tar.gz &&
+      cd linux &&
+      ./configure && make
+  else
+    cd linux
+  fi
+  cd src
+  ./cf.sh
 }
 
 install_hot() {
@@ -453,6 +482,7 @@ ${font_color_up}4.${font_color_end}   流量控制脚本
 ${font_color_up}5.${font_color_end}   宝塔安装脚本(py3版)
 ${font_color_up}6.${font_color_end}   卸载宝塔脚本
 ${font_color_up}7.${font_color_end}   Hotaru探针脚本
+${font_color_up}8.${font_color_end}   Cloudflare筛选脚本(better-cloudflare-ip)
 ${font_color_up}9.${font_color_end}   一键dd系统脚本(萌咖)
 ${font_color_up}10.${font_color_end}  设置上海时区并对齐
 ${font_color_up}12.${font_color_end}  国内测速脚本(Superspeed)
@@ -490,6 +520,9 @@ Ctrl+C 退出" && echo
     ;;
   7)
     install_hot
+    ;;
+  8)
+    cloudflare
     ;;
   9)
     ddserver
