@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.05"
+sh_ver="0.06"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -111,7 +111,7 @@ add_docker() {
       echo -e "${error}拉取失败 !" && exit 1
     fi
   fi
-  read -p "昵称: " name
+  read -p "端口: " name
   read -p "操作(-L and -F): " content
   docker run -d --name="gost${name}" --net=host --log-opt max-size=100m --restart=always ginuerzh/gost:latest ${content} &&
     echo -e "${info}创建成功 !"
@@ -119,6 +119,11 @@ add_docker() {
 
 status_docker() {
   docker ps -a --no-trunc | grep ginuerzh/gost
+}
+
+delete_docker() {
+  read -p "端口: " port
+  docker kill $port && docker rm -f $port && echo -e "${info}删除成功 !"
 }
 
 start_menu() {
@@ -129,6 +134,7 @@ ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
 ${font_color_up}1.${font_color_end} 创建隧道(Docker)
 ${font_color_up}2.${font_color_end} 查看隧道(Docker)
+${font_color_up}3.${font_color_end} 删除端口(Docker)
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
