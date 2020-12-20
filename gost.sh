@@ -123,7 +123,7 @@ status_docker() {
 
 delete_docker() {
   read -p "端口: " port
-  docker kill $port && docker rm -f $port && echo -e "${info}删除成功 !"
+  docker rm -f $(docker kill gost${port}) 1>/dev/null && echo -e "${info}删除成功 !"
 }
 
 start_menu() {
@@ -147,6 +147,9 @@ Ctrl+C 退出" && echo
     ;;
   2)
     status_docker
+    ;;
+  3)
+    delete_docker
     ;;
   esac
 }
