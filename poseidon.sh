@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.04"
+sh_ver="0.05"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -66,25 +66,42 @@ update_sh() {
 }
 
 install_docker() {
-  #  if [ ! $(command -v docker) ]; then
-  #    echo -e "${info}开始安装docker..."
-  #    curl -fsSL https://get.docker.com | bash
-  #    curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  #    chmod a+x /usr/local/bin/docker-compose
-  #    rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
-  #    systemctl start docker >/dev/null && echo -e "${info}docker安装完成"
-  #  else
-  #    echo -e "${info}Docker已安装 !"
-  #  fi
+install_docker() {
   if [ ! $(command -v docker) ]; then
-    echo -e "${info}开始安装docker..."
-    ${Commad} -y install docker-ce &&
-      rm -f $(which dc) &&
-      ln -s /usr/local/bin/docker-compose /usr/bin/dc &&
-      echo -e "${info}Docker安装完成 !"
+    echo -e "${info}开始安装Docker..."
+    case $Distributor in
+    Debian)
+      apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common &&
+        curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add - &&
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+      apt update
+      apt install -y docker-ce
+      ;;
+    Ubuntu)
+      apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common &&
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - &&
+        add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      apt update
+      apt install -y docker-ce
+      ;;
+    CentOS)
+      yum install -y yum-utils
+      yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      yum install -y docker-ce
+      ;;
+    esac && echo -e "${info}Docker安装完成 !"
   else
     echo -e "${info}Docker已安装 !"
   fi
+  if [ $(command -v docker-compose) ]; then
+    echo -e "${info}开始安装Docker-Compose..."
+    $Commad install -y docker-compose && echo -e "${info}安装成功 !"
+    rm -f $(which dc)
+    ln -s /usr/bin/docker-compose /usr/bin/dc
+  else
+    echo -e "${info}Docker-Compose已安装 !"
+  fi
+}
 }
 
 set_tcp_config() {
