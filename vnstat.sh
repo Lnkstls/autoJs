@@ -1,3 +1,4 @@
+#! /usr/bin/env bash
 # Author: @Lnkstls
 
 TIME=00     # 重置时间
@@ -10,6 +11,7 @@ if (($# != 0)); then
   Range=$3
 fi
 
+let GB--
 TX=$(vnstat --dumpdb | grep "m;0;" | awk -F ";" '{print $4}')
 RX=$(vnstat --dumpdb | grep "m;0;" | awk -F ";" '{print $5}')
 if [[ $time != 00 ]]; then
@@ -17,13 +19,13 @@ if [[ $time != 00 ]]; then
     vnstat --delete --force -i $eth &&
       vnstat --create -i $eth
   fi
-  let TX=$TX+$(vnstat --dumpdb | grep "m;1;" | awk -F ";" '{print $4}')
-  let RX=$RX+$(vnstat --dumpdb | grep "m;1;" | awk -F ";" '{print $5}')
+  let TX+=$(vnstat --dumpdb | grep "m;1;" | awk -F ";" '{print $4}')
+  let RX+=$(vnstat --dumpdb | grep "m;1;" | awk -F ";" '{print $5}')
 fi
 let ALL=${TX}+${RX}
-let ALL=$ALL/1024
-let TX=$TX/1024
-let RX=$RX/1024
+let ALL/=1024
+let TX/=1024
+let RX/=1024
 
 echo "$(date)
 TIME=${TIME}
