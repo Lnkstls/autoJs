@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.05"
+sh_ver="0.06"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -66,7 +66,6 @@ update_sh() {
 }
 
 install_docker() {
-install_docker() {
   if [ ! $(command -v docker) ]; then
     echo -e "${info}开始安装Docker..."
     case $Distributor in
@@ -93,7 +92,7 @@ install_docker() {
   else
     echo -e "${info}Docker已安装 !"
   fi
-  if [ $(command -v docker-compose) ]; then
+  if [ ! $(command -v docker-compose) ]; then
     echo -e "${info}开始安装Docker-Compose..."
     $Commad install -y docker-compose && echo -e "${info}安装成功 !"
     rm -f $(which dc)
@@ -101,7 +100,6 @@ install_docker() {
   else
     echo -e "${info}Docker-Compose已安装 !"
   fi
-}
 }
 
 set_tcp_config() {
@@ -111,12 +109,14 @@ set_tcp_config() {
   node_id=${node_id:-1}
   read -p "webapi(http or https): " webapi
   read -p "token: " token
-  read -p "节点限速(默认0): " node_speed
+  read -p "节点限速MB(默认0): " node_speed
   node_speed=${node_speed:-0}
   read -p "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速(默认0): " user_speed
+  read -p "用户限速MB(默认0): " user_speed
   user_speed=${user_speed:-0}
+  let node_speed*=1048576
+  let user_speed*=1048576
 
   read -p "容器名称(默认v2ray-tcp): " dc_name
   dc_name=${dc_name:-v2ray-tcp}
@@ -132,8 +132,8 @@ set_tcp_config() {
   mkdir $dc_name
   cd $dc_name
   if [ -n "$webapi" -a -n "$token" ]; then
-    curl -sSL $tcp_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
-    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/g" | sed "s/服务端口:服务端口/${dc_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $tcp_config | sed "4s/1/${node_id}/" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|" | sed "7s/v2board token/${token}/" | sed "9s/0/${node_speed}/" | sed "11s/0/${user_ip}/" | sed "12s/0/${user_speed}/" >config.json
+    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/" | sed "s/服务端口:服务端口/${dc_port}/" | sed "s/2g/100m/" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -150,12 +150,14 @@ set_ws_config() {
   node_id=${node_id:-1}
   read -p "webapi(http or https): " webapi
   read -p "token: " token
-  read -p "节点限速(默认0): " node_speed
+  read -p "节点限速MB(默认0): " node_speed
   node_speed=${node_speed:-0}
   read -p "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速(默认0): " user_speed
+  read -p "用户限速MB(默认0): " user_speed
   user_speed=${user_speed:-0}
+  let node_speed*=1048576
+  let user_speed*=1048576
 
   read -p "容器名称(默认v2ray-ws): " dc_name
   dc_name=${dc_name:-v2ray-ws}
@@ -172,8 +174,8 @@ set_ws_config() {
   cd $dc_name
 
   if [ -n "$webapi" -a -n "$token" ]; then
-    curl -sSL $ws_config | sed "4s/1/${node_id}/g" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|g" | sed "7s/v2board token/${token}/g" | sed "9s/0/${node_speed}/g" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
-    curl -sSL $docker_ws_config | sed "s/v2ray-ws/${dc_name}/g" | sed "s/80:10086/${dc_port}/g" | sed "s/2g/100m/g" >docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $ws_config | sed "4s/1/${node_id}/" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|" | sed "7s/v2board token/${token}/" | sed "9s/0/${node_speed}/" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
+    curl -sSL $docker_ws_config | sed "s/v2ray-ws/${dc_name}/" | sed "s/80:10086/${dc_port}/" | sed "s/2g/100m/" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"

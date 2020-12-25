@@ -72,7 +72,7 @@ upcs() {
 }
 
 add_crontab() {
-  if [[ $(crontab -l) == *$1* ]]; then
+  if [[ $(crontab -l 2>/dev/null) == *$1* ]]; then
     echo -e "${note}已存在, 是否继续?[N/y]"
     crontab -l | grep "$1"
     read -p "默认(N):" num
@@ -269,7 +269,7 @@ poseidon() {
 
 vnstatcont() {
   if [ ! $(command -v vnstat) ]; then
-    echo -e "${info}安装依赖 vnstat"
+    echo -e "${info}安装vnstat..."
     ${Commad} install -y vnstat
     vnstat --iflist
     read -p "选择网络接口(默认eth0): " eth
@@ -314,11 +314,11 @@ rm_bt() {
 
 cloudflare() {
   if [ ! $(command -v gcc) ]; then
-    echo -e "${info}安装依赖 gcc"
+    echo -e "${info}安装gcc..."
     ${Commad} install -y gcc
   fi
   if [ ! $(command -v make) ]; then
-    echo -e "${info}安装依赖 make"
+    echo -e "${info}安装make..."
     ${Commad} install -y make
   fi
   cd $fder
@@ -436,8 +436,9 @@ besttrace() {
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate "${lnkstls_link}/besttrace" && chmod +x besttrace
   fi
-  read -p "IP or 域名: " ip
+  read -p "IP or 域名(Ctrl+C退出): " ip
   ./besttrace -g cn $ip
+  besttrace
 }
 
 haproxy() {
@@ -608,37 +609,37 @@ done
 
 if [ ! -e "clapse.log" ]; then
   upcs
-  echo "1" >clapse.log
+  echo "0" >clapse.log
 fi
 if [ ! -d "$fder" ]; then
   mkdir $fder
 fi
 if [ ! $(command -v sudo) ]; then
-  echo -e "${info}安装依赖 sudo"
+  echo -e "${info}安装sudo..."
   ${Commad} install -y sudo
 fi
 if [ ! $(command -v wget) ]; then
-  echo -e "${info}安装依赖 wget"
+  echo -e "${info}安装wget..."
   ${Commad} install -y wget
 fi
 if [ ! $(command -v vim) ]; then
-  echo -e "${info}安装依赖 vim"
+  echo -e "${info}安装vim..."
   ${Commad} install -y vim
 fi
 if [ ! $(command -v unzip) ]; then
-  echo -e "${info}安装依赖 unzip"
+  echo -e "${info}安装unzip..."
   ${Commad} install -y unzip
 fi
 if [ ! $(command -v curl) ]; then
-  echo -e "${info}安装依赖 curl"
+  echo -e "${info}安装curl..."
   ${Commad} install -y curl
 fi
 if [ ! $(command -v iperf3) ]; then
-  echo -e "${info}安装依赖 iperf3"
+  echo -e "${info}安装iperf3..."
   ${Commad} install -y iperf3
 fi
 if [ ! $(command -v screen) ]; then
-  echo -e "${info}安装依赖 screen"
+  echo -e "${info}安装screen..."
   ${Commad} install -y screen
 fi
 
