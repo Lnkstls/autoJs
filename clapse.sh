@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.91"
+sh_ver="0.92"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -231,27 +231,29 @@ install_docker() {
         curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add - &&
         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
       apt update
-      apt install -y docker-ce
+      apt install -y docker-ce docker-ce-cli containerd.io
       ;;
     Ubuntu)
       apt install -y apt-transport-https ca-certificates curl gnupg-agent software-properties-common &&
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - &&
         add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
       apt update
-      apt install -y docker-ce
+      apt install -y docker-ce docker-ce-cli containerd.io
       ;;
     CentOS)
       yum install -y yum-utils
       yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-      yum install -y docker-ce
+      yum install -y docker-ce docker-ce-cli containerd.io
       ;;
     esac && echo -e "${info}Docker安装完成 !"
   else
     echo -e "${info}Docker已安装 !"
   fi
-  if [ $(command -v docker-compose) ]; then
+  if [ ! $(command -v docker-compose) ]; then
     echo -e "${info}开始安装Docker-Compose..."
-    $Commad install -y docker-compose && echo -e "${info}安装成功 !"
+    curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && echo -e "${info}安装成功 !"
+    chmod +x /usr/local/bin/docker-compose
+    ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
     rm -f $(which dc)
     ln -s /usr/bin/docker-compose /usr/bin/dc
   else

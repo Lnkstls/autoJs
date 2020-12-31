@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.06"
+sh_ver="0.07"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -65,23 +65,6 @@ update_sh() {
   fi
 }
 
-install_docker() {
-  #  curl -fsSL https://get.docker.com | bash &&
-  #    curl -L -S "https://github.com/docker/compose/releases/download/1.25.3/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-  #  chmod a+x /usr/local/bin/docker-compose
-  #  rm -f $(which dc) && ln -s /usr/local/bin/docker-compose /usr/bin/dc >/dev/null
-  #  systemctl start docker >/dev/null && echo -e "${info}docker安装完成 !"
-  if [ ! $(command -v docker) ]; then
-    echo -e "${info}开始安装docker..."
-    ${Commad} -y install docker-ce &&
-      rm -f $(which dc) &&
-      ln -s /usr/local/bin/docker-compose /usr/bin/dc &&
-      echo -e "${info}Docker安装完成 !"
-  else
-    echo -e "${info}Docker已安装 !"
-  fi
-}
-
 ginuerzh_gost() {
   if [[ -n $num ]]; then
     if [ -e /etc/docker/deamon.json ]; then
@@ -100,9 +83,7 @@ ginuerzh_gost() {
 
 add_docker() {
   if [[ ! $(command -v docker) ]]; then
-    echo -e "${error}Docker未安装, 即将开始安装, 按Ctr+C取消"
-    sleep 3s
-    install_docker
+    echo -e "${error}Docker未安装 !" && exit 1
   fi
   if (($(docker images -a | grep -Ei "ginuerzh/gost" | wc -l) == 0)); then
     echo -e "${info}拉取镜像"
