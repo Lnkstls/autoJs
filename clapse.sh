@@ -440,7 +440,7 @@ besttrace() {
   fi
   read -p "IP or 域名(Ctrl+C退出): " ip
   ./besttrace -g cn $ip
-  besttrace
+  echo && besttrace
 }
 
 haproxy() {
