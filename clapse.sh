@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.92"
+sh_ver="0.93"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -276,9 +276,9 @@ vnstatcont() {
     vnstat --iflist
     read -p "选择网络接口(默认eth0): " eth
     eth=${eth:-eth0}
-    vnstat -u -i $eth
+    sed -i "5s/.*/Interface \"${eth}\"/" /etc/vnstat.conf
     if (($? != 0)); then
-      echo -e "${error}错误 !" && exit 1
+      echo -e "${error}设置网络接口错误 !" && exit 1
     fi
   fi
   cd $fder
@@ -290,7 +290,7 @@ vnstatcont() {
   time=${time:-00}
   read -p "控制流量单位GB(默认1024): " gb
   gb=${gb:-1024}
-  read -p "统计(默认0=所有, 1=上传, 2=下载)" range
+  read -p "统计(默认0=所有, 1=上传, 2=下载): " range
   range=${range:-0}
   ./vnstat.sh $time $gb $range &&
     add_crontab "* * * * * bash $(pwd)/vnstat.sh $time $gb $range >$(pwd)/vnstat.log"
