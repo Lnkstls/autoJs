@@ -215,7 +215,7 @@ souret() {
 
 wget_bbr() {
   cd $fder
-  local bbrrss="https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh"
+  local bbrrss="https://github.000060000.xyz/tcp.sh"
   if [ ! -e "./tcp.sh" ]; then
     wget --no-check-certificate -O tcp.sh $bbrrss && chmod +x tcp.sh
   fi
