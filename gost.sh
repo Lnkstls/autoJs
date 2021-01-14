@@ -94,7 +94,7 @@ add_docker() {
   fi
   read -p "端口: " name
   read -p "操作(-L and -F): " content
-  docker run -d --name="gost${name}" --net=host --log-opt max-size=100m --restart=always ginuerzh/gost:latest ${content} &&
+  docker run -d --name="gost${name}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest ${content} &&
     echo -e "${info}创建成功 !"
 }
 
