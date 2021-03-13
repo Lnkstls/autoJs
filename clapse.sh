@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.94"
+sh_ver="0.95"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -16,9 +16,9 @@ if (($EUID != 0)); then
 fi
 
 Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
-if [ "$arch" = "x86_64" ]; then
-  echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
-fi
+# if [ "$arch" = "x86_64" ]; then
+#   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
+# fi
 if [[ -f /etc/redhat-release ]]; then
   Distributor="CentOS"
   Commad="yum"
@@ -54,7 +54,7 @@ update_sh() {
     read -p "(默认Y): " yn
     [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
-      wget "${lnkstls_link}/${uname}" && chmod +x ${uname}
+      wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
     else
       echo && echo "${info}已取消..." && echo
@@ -68,7 +68,7 @@ update_sh() {
 
 upcs() {
   echo -e "${info}更新列表 update"
-  ${Commad} update -y && echo -e "${info}更新完成 !"
+  $Commad update -y && echo -e "${info}更新完成 !"
 }
 
 add_crontab() {
@@ -272,7 +272,7 @@ poseidon() {
 vnstatcont() {
   if [ ! $(command -v vnstat) ]; then
     echo -e "${info}安装vnstat..."
-    ${Commad} install -y vnstat
+    $Commad install -y vnstat
     vnstat --iflist
     read -p "选择网络接口(默认eth0): " eth
     eth=${eth:-eth0}
@@ -317,11 +317,11 @@ rm_bt() {
 cloudflare() {
   if [ ! $(command -v gcc) ]; then
     echo -e "${info}安装gcc..."
-    ${Commad} install -y gcc
+    $Commad install -y gcc
   fi
   if [ ! $(command -v make) ]; then
     echo -e "${info}安装make..."
-    ${Commad} install -y make
+    $Commad install -y make
   fi
   cd $fder
   local cloudflare_link="https://proxy.freecdn.workers.dev/?url=https://github.com/badafans/better-cloudflare-ip/releases/latest/download/linux.tar.gz"
@@ -354,10 +354,24 @@ ddserver() {
 
 time_up() {
   if [ ! $(command -v ntpdate) ]; then
-    ${Commad} install -y ntpdate
+    $Commad install -y ntpdate
   fi
   timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
   timedatectl
+}
+
+autoCdn() {
+  local fileName="cloudflare.py"
+  local autoCdn_link="${lnkstls_link}/${fileName}"
+    if [ ! -e $fileName ]; then
+    wget --no-check-certificate $lnkstls_link
+  fi
+  if [ ! `command -v python3` ]; then
+    echo -e "${info}安装python3..."
+    $Commad install -y python3
+  fi
+  python3 $fileName >cloudflare.log &&
+    add_crontab "* * * * * python3 $(pwd)/${fileName}>$(pwd)/cloudflare.log"
 }
 
 superspeed() {
@@ -463,7 +477,7 @@ network_opt() {
 *   hard nofile   65535" >>/etc/security/limits.conf && echo -e "${info}limits设置完成 !"
   fi
   if cat /etc/profile | grep -Eqi "ulimit -u 65535"; then
-    echo -e "${error}已优化profile !"
+    echo -e "${error}已优化profile !" && exit 0
   else
     echo "ulimit -u 65535  
 ulimit -n 65535
@@ -506,6 +520,7 @@ ${font_color_up}7.${font_color_end}   Hotaru探针脚本
 ${font_color_up}8.${font_color_end}   Cloudflare筛选脚本(better-cloudflare-ip)
 ${font_color_up}9.${font_color_end}   一键dd系统脚本(萌咖)
 ${font_color_up}10.${font_color_end}  设置上海时区并对齐
+${font_color_up}11.${font_color_end}  Cloudflare监测
 ${font_color_up}12.${font_color_end}  国内测速脚本(Superspeed)
 ${font_color_up}13.${font_color_end}  安装speedtest
 ${font_color_up}14.${font_color_end}  nat脚本
@@ -550,6 +565,9 @@ Ctrl+C 退出" && echo
     ;;
   10)
     time_up
+    ;;
+  11)
+    autoCdn
     ;;
   12)
     superspeed
@@ -604,7 +622,7 @@ for opt in "$@"; do
     ;;
   -h | --help)
     echo -e "参数列表:
-  -s  --source  cn 使用腾讯云镜像
+  -s  --source  cn 使用腾讯云源镜像
                 ret 恢复备份
   -h  --help    帮助"
     exit 1
@@ -619,33 +637,12 @@ fi
 if [ ! -d "$fder" ]; then
   mkdir $fder
 fi
-if [ ! $(command -v sudo) ]; then
-  echo -e "${info}安装sudo..."
-  ${Commad} install -y sudo
-fi
-if [ ! $(command -v wget) ]; then
-  echo -e "${info}安装wget..."
-  ${Commad} install -y wget
-fi
-if [ ! $(command -v vim) ]; then
-  echo -e "${info}安装vim..."
-  ${Commad} install -y vim
-fi
-if [ ! $(command -v unzip) ]; then
-  echo -e "${info}安装unzip..."
-  ${Commad} install -y unzip
-fi
-if [ ! $(command -v curl) ]; then
-  echo -e "${info}安装curl..."
-  ${Commad} install -y curl
-fi
-if [ ! $(command -v iperf3) ]; then
-  echo -e "${info}安装iperf3..."
-  ${Commad} install -y iperf3
-fi
-if [ ! $(command -v screen) ]; then
-  echo -e "${info}安装screen..."
-  ${Commad} install -y screen
-fi
+mad=(sudo wget vim unzip curl iperf3 screen htop)
+for item in ${mad[@]}; do
+  if [ ! $(command -v ${item}) ]; then
+    echo -e "${info}安装${item}..."
+    $Commad install -y $item
+  fi
+done
 
 start_menu

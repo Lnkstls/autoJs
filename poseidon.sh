@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.06"
+sh_ver="0.07"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -50,10 +50,10 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认: y): " yn
-    [[ -z "${yn}" ]] && yn="y"
+    read -p "(默认Y): " yn
+    [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
-      wget "${lnkstls_link}/${uname}" && chmod +x ${uname}
+      wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
     else
       echo && echo "${info}已取消..." && echo
@@ -133,7 +133,7 @@ set_tcp_config() {
   cd $dc_name
   if [ -n "$webapi" -a -n "$token" ]; then
     curl -sSL $tcp_config | sed "4s/1/${node_id}/" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|" | sed "7s/v2board token/${token}/" | sed "9s/0/${node_speed}/" | sed "11s/0/${user_ip}/" | sed "12s/0/${user_speed}/" >config.json
-    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/" | sed "s/服务端口:服务端口/${dc_port}/" | sed "s/2g/100m/" >docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $docker_tcp_config | sed "s/v2ray-tcp/${dc_name}/" | sed "s/服务端口:服务端口/${dc_port}/" | sed "s/2g/10m/" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"
@@ -175,7 +175,7 @@ set_ws_config() {
 
   if [ -n "$webapi" -a -n "$token" ]; then
     curl -sSL $ws_config | sed "4s/1/${node_id}/" | sed "6s|http or https://YOUR V2BOARD DOMAIN|${webapi}|" | sed "7s/v2board token/${token}/" | sed "9s/0/${node_speed}/" | sed "11s/0/${user_ip}/g" | sed "12s/0/${user_speed}/g" >config.json
-    curl -sSL $docker_ws_config | sed "s/v2ray-ws/${dc_name}/" | sed "s/80:10086/${dc_port}/" | sed "s/2g/100m/" >docker-compose.yml && echo -e "${info}配置文件完成"
+    curl -sSL $docker_ws_config | sed "s/v2ray-ws/${dc_name}/" | sed "s/80:10086/${dc_port}/" | sed "s/2g/10m/" >docker-compose.yml && echo -e "${info}配置文件完成"
     docker-compose up -d && echo $dc_name && docker-compose logs -f
   else
     echo -e "${error}输入错误 !"

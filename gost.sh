@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.07"
+sh_ver="0.08"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -50,10 +50,10 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认: y): " yn
-    [[ -z "${yn}" ]] && yn="y"
+    read -p "(默认Y): " yn
+    [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
-      wget "${lnkstls_link}/${uname}" && chmod +x ${uname}
+      wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
       echo -e "${info}脚本已更新为最新版本[ ${sh_new_ver} ] !" && exit 0
     else
       echo && echo "${info}已取消..." && echo
