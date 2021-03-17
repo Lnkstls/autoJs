@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.08"
+sh_ver="0.09"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -107,15 +107,93 @@ delete_docker() {
   docker rm -f $(docker kill gost${port}) 1>/dev/null && echo -e "${info}删除成功 !"
 }
 
+config() {
+  local num
+  local dcon
+  local fileName="gost.config"
+  local upDCon="echo `docker ps -a --no-trunc | grep ginuerzh/gost`"
+  # local upDCon="cat cloudflare.json"
+  local dkStr="template=\"\""
+  local upGCon="cat $fileName"
+  local template=`$upGCon 2>/dev/null | awk -F "\"" 'NR==1 {print $2}'`
+  local gostCon=`$upGCon 2>/dev/null | awk -F "=" 'NR>1 {print $1}'`
+
+  reConfig() {
+    initDocker() {
+        printf $dkStr >>$fileName
+    }
+
+    delateDocker() {
+      echo -e "${info}Delate docker gost${port}"
+      docker rm -f `docker kill "gost${port}"`
+    }
+
+    num=0
+    for port in `$upDCon | grep -oE "\-L.*\"" | grep -oE "//:[0-9]*" | sed -e "s/\///g" -e "s/://g"`; do
+    let num++
+        dcon=`${upDCon} | grep -oE "\".*\"" | awk -v num=$num 'NR==num {print $3}' | grep -o "//.*?" | sed -e "s/\/\///g" -e "s/?//g"`
+        if [ -z "$dcon" ]; then
+          dcon="NULL"
+        fi
+        dkStr="${dkStr}\n${port}=${dcon}"
+        if [ -z `printf "$gostCon" | grep -w "$port"` ]; then
+          echo -e "${info}${port} is NULL."
+          case $1 in
+            initDocker) initDocker
+            ;;
+            *) delateDocker
+            ;;
+          esac
+        fi
+    done
+
+    tempVar=`$upGCon | grep -o var | wc -l`
+    num=1
+    for port in $gostCon; do
+      let num++
+      temp=`$upGCon | awk -v num=$num -F '=' 'NR==num {print $2}'`
+      if (( $tempVar == 0 )); then
+        echo -e "${error}Template is NULL."
+        exit 1
+      elif (( $tempVar == 1 )) ;then
+        temp=`echo $template | sed -e "s/var0/$port/g"` 
+      elif (( $tempVar == 2 )) ;then
+        temp=`echo $template | sed -e "s/var0/$port/g" -e "s/var1/$temp/g"`
+      fi
+      if [ -z `printf "$dkStr" | grep -w "$port"` ]; then
+        echo -e "${info}${port} is NULL, UP ${port} docker...\c"
+        docker run -d --name="gost${port}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest $temp &&
+          echo "success."
+      fi
+    done
+    echo -e "${info}Config all updata success."
+  }
+  
+  if [ ! -e "$fileName" ]; then
+  echo -e "${info}Set gost.config..."
+    if [[ `$upDCon` = *gost* ]]; then
+      echo -e "${info}Docker init."
+      reConfig initDocker
+    else
+      echo -e "${info}Default init."
+      printf $dkStr >$fileName
+    fi
+  else
+      reConfig
+  fi
+}
+
+
 start_menu() {
   echo && echo -e "Author: @Lnkstls
 当前版本: [${sh_ver}]
 ——————————————————————————————
 ${font_color_up}0.${font_color_end} 升级脚本
 ——————————————————————————————
-${font_color_up}1.${font_color_end} 创建隧道(Docker)
-${font_color_up}2.${font_color_end} 查看隧道(Docker)
-${font_color_up}3.${font_color_end} 删除端口(Docker)
+${font_color_up}1.${font_color_end} 创建隧道
+${font_color_up}2.${font_color_end} 查看隧道
+${font_color_up}3.${font_color_end} 删除端口
+${font_color_up}4.${font_color_end} 更新配置
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -p "请输入数字: " num
@@ -132,6 +210,10 @@ Ctrl+C 退出" && echo
   3)
     delete_docker
     ;;
+  4)
+    config
+    ;;
   esac
 }
+
 start_menu
