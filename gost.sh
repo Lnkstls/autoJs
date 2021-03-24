@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.09"
+sh_ver="0.10"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -111,19 +111,20 @@ config() {
   local num
   local dcon
   local fileName="gost.config"
-  local upDCon="echo `docker ps -a --no-trunc | grep ginuerzh/gost`"
+  local upDCon="cat gost.temp"
   # local upDCon="cat cloudflare.json"
   local dkStr="template=\"\""
   local upGCon="cat $fileName"
   local template=`$upGCon 2>/dev/null | awk -F "\"" 'NR==1 {print $2}'`
   local gostCon=`$upGCon 2>/dev/null | awk -F "=" 'NR>1 {print $1}'`
+  docker ps -a --no-trunc | grep ginuerzh/gost >gost.temp
 
   reConfig() {
-    initDocker() {
-        printf $dkStr >>$fileName
+    init() {
+        printf $dkStr >$fileName
     }
 
-    delateDocker() {
+    delate() {
       echo -e "${info}Delate docker gost${port}"
       docker rm -f `docker kill "gost${port}"`
     }
@@ -139,9 +140,9 @@ config() {
         if [ -z `printf "$gostCon" | grep -w "$port"` ]; then
           echo -e "${info}${port} is NULL."
           case $1 in
-            initDocker) initDocker
+            init) init
             ;;
-            *) delateDocker
+            *) delate
             ;;
           esac
         fi
@@ -173,7 +174,7 @@ config() {
   echo -e "${info}Set gost.config..."
     if [[ `$upDCon` = *gost* ]]; then
       echo -e "${info}Docker init."
-      reConfig initDocker
+      reConfig init
     else
       echo -e "${info}Default init."
       printf $dkStr >$fileName
@@ -181,6 +182,7 @@ config() {
   else
       reConfig
   fi
+  rm -f gost.temp
 }
 
 
