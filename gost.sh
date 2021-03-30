@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.10"
+sh_ver="0.11"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -50,7 +50,7 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认Y): " yn
+    read -rep "(默认Y): " yn
     [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
       wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
@@ -70,7 +70,7 @@ ginuerzh_gost() {
     if [ -e /etc/docker/deamon.json ]; then
       echo -e "${note}deamon.json文件存在 !"
     else
-      read -p "加速地址(不需要则回车): " num
+      read -rep "加速地址(不需要则回车): " num
       if [[ -n $num ]]; then
         echo "{\"registry-mirrors\": [\"${num}\"]}" >/etc/docker/deamon.json
         systemctl daemon-reload
@@ -92,8 +92,8 @@ add_docker() {
       echo -e "${error}拉取失败 !" && exit 1
     fi
   fi
-  read -p "端口: " name
-  read -p "操作(-L and -F): " content
+  read -rep "端口: " name
+  read -rep "操作(-L and -F): " content
   docker run -d --name="gost${name}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest ${content} &&
     echo -e "${info}创建成功 !"
 }
@@ -103,7 +103,7 @@ status_docker() {
 }
 
 delete_docker() {
-  read -p "端口: " port
+  read -rep "端口: " port
   docker rm -f $(docker kill gost${port}) 1>/dev/null && echo -e "${info}删除成功 !"
 }
 
@@ -198,7 +198,7 @@ ${font_color_up}3.${font_color_end} 删除端口
 ${font_color_up}4.${font_color_end} 更新配置
 ——————————————————————————————
 Ctrl+C 退出" && echo
-  read -p "请输入数字: " num
+  read -rep "请输入数字: " num
   case "$num" in
   0)
     update_sh

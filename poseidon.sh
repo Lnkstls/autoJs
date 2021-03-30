@@ -50,7 +50,7 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认Y): " yn
+    read -rep "(默认Y): " yn
     [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
       wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
@@ -105,22 +105,22 @@ install_docker() {
 set_tcp_config() {
   local tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/config.json"
   local docker_tcp_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/tcp/docker-compose.yml"
-  read -p "节点id(默认1): " node_id
+  read -rep "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(http or https): " webapi
-  read -p "token: " token
-  read -p "节点限速MB(默认0): " node_speed
+  read -rep "webapi(http or https): " webapi
+  read -rep "token: " token
+  read -rep "节点限速KB(默认0): " node_speed
   node_speed=${node_speed:-0}
-  read -p "用户ip限制(默认0): " user_ip
+  read -rep "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速MB(默认0): " user_speed
+  read -rep "用户限速KB(默认0): " user_speed
   user_speed=${user_speed:-0}
-  let node_speed*=1048576
-  let user_speed*=1048576
+  let node_speed*=1024
+  let user_speed*=1024
 
-  read -p "容器名称(默认v2ray-tcp): " dc_name
+  read -rep "容器名称(默认v2ray-tcp): " dc_name
   dc_name=${dc_name:-v2ray-tcp}
-  read -p "服务端口(80:80): " dc_port
+  read -rep "服务端口(80:80): " dc_port
   dc_port=${dc_port:-80:80}
 
   if [ -d "$dc_name" ]; then
@@ -146,22 +146,22 @@ set_ws_config() {
   local ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/config.json"
   local docker_ws_config="https://raw.githubusercontent.com/ColetteContreras/v2ray-poseidon/master/docker/v2board/ws/docker-compose.yml"
 
-  read -p "节点id(默认1): " node_id
+  read -rep "节点id(默认1): " node_id
   node_id=${node_id:-1}
-  read -p "webapi(http or https): " webapi
-  read -p "token: " token
-  read -p "节点限速MB(默认0): " node_speed
+  read -rep "webapi(http or https): " webapi
+  read -rep "token: " token
+  read -rep "节点限速MB(默认0): " node_speed
   node_speed=${node_speed:-0}
-  read -p "用户ip限制(默认0): " user_ip
+  read -rep "用户ip限制(默认0): " user_ip
   user_ip=${user_ip:-0}
-  read -p "用户限速MB(默认0): " user_speed
+  read -rep "用户限速MB(默认0): " user_speed
   user_speed=${user_speed:-0}
-  let node_speed*=1048576
-  let user_speed*=1048576
+  let node_speed*=1024
+  let user_speed*=1024
 
-  read -p "容器名称(默认v2ray-ws): " dc_name
+  read -rep "容器名称(默认v2ray-ws): " dc_name
   dc_name=${dc_name:-v2ray-ws}
-  read -p "连接端口(80:10086): " dc_port
+  read -rep "连接端口(80:10086): " dc_port
   dc_port=${dc_port:-80:10086}
 
   if [ -d "$dc_name" ]; then
@@ -197,7 +197,7 @@ ${font_color_up}3.${font_color_end} TLS模式
 ——————————————————————————————
 ${font_color_up}0.${font_color_end} 返回上一步
 "
-  read -p "请输入数字: " num
+  read -rep "请输入数字: " num
   case "$num" in
   0)
     start_menu
@@ -235,7 +235,7 @@ ${font_color_up}1.${font_color_end} 创建poseidon(docker版)
 ${font_color_up}2.${font_color_end} 更新poseidon镜像(docker版)
 ——————————————————————————————
 Ctrl+C 退出" && echo
-  read -p "请输入数字: " num
+  read -rep "请输入数字: " num
   case "$num" in
   0)
     update_sh

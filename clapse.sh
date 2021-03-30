@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.95"
+sh_ver="0.96"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -51,7 +51,7 @@ update_sh() {
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
   if [[ ${sh_new_ver} != ${sh_ver} ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
-    read -p "(默认Y): " yn
+    read -rep "(默认Y): " yn
     [[ -z "${yn}" ]] && yn="Y"
     if [[ ${yn} == [Yy] ]]; then
       wget -O $uname "${lnkstls_link}/${uname}" && chmod +x ${uname}
@@ -75,7 +75,7 @@ add_crontab() {
   if [[ $(crontab -l 2>/dev/null) == *$1* ]]; then
     echo -e "${note}已存在, 是否继续?[N/y]"
     crontab -l | grep "$1"
-    read -p "默认(N):" num
+    read -rep "默认(N):" num
     num=${num:-N}
     if [[ $num == [Nn] ]]; then
       exit 0
@@ -274,7 +274,7 @@ vnstatcont() {
     echo -e "${info}安装vnstat..."
     $Commad install -y vnstat
     vnstat --iflist
-    read -p "选择网络接口(默认eth0): " eth
+    read -rep "选择网络接口(默认eth0): " eth
     eth=${eth:-eth0}
     sed -i "5s/.*/Interface \"${eth}\"/" /etc/vnstat.conf
     if (($? != 0)); then
@@ -286,11 +286,11 @@ vnstatcont() {
   if [ ! -e vnstat.sh ]; then
     wget --no-check-certificate $vnstat_link && chmod +x vnstat.sh
   fi
-  read -p "重置日期(默认00): " time
+  read -rep "重置日期(默认00): " time
   time=${time:-00}
-  read -p "控制流量单位GB(默认1024): " gb
+  read -rep "控制流量单位GB(默认1024): " gb
   gb=${gb:-1024}
-  read -p "统计(默认0=所有, 1=上传, 2=下载): " range
+  read -rep "统计(默认0=所有, 1=上传, 2=下载): " range
   range=${range:-0}
   ./vnstat.sh $time $gb $range &&
     add_crontab "* * * * * bash $(pwd)/vnstat.sh $time $gb $range >$(pwd)/vnstat.log"
@@ -418,17 +418,17 @@ dnspod() {
 ${font_color_up}1.${font_color_end} 外网获取ip
 ${font_color_up}2.${font_color_end} 网卡获取
 ——————————————————————————————"
-  read -p "请输入数字: " dnspod_re
+  read -rep "请输入数字: " dnspod_re
   case "$dnspod_re" in
   1)
     if [ ! -e "dnspod.sh" ]; then
       wget --no-check-certificate ${dnspod_link} && chmod +x dnspod.sh
     fi
-    read -p "请输入APP_ID: " APP_ID
-    read -p "请输入APP_Token: " APP_Token
-    read -p "请输入Domain: " domain
-    read -p "请输入Host: " host
-    read -p "请输入TTL(默认600): " ttl
+    read -rep "请输入APP_ID: " APP_ID
+    read -rep "请输入APP_Token: " APP_Token
+    read -rep "请输入Domain: " domain
+    read -rep "请输入Host: " host
+    read -rep "请输入TTL(默认600): " ttl
     ttl=${ttl:-600}
     ./dnspod.sh $APP_ID $APP_Token $domain $host $ttl &&
       add_crontab "* * * * * bash $(pwd)/dnspod.sh ${APP_ID} ${APP_Token} ${domain} ${host} ${ttl} >$(pwd)/dnspod.log"
@@ -453,7 +453,7 @@ besttrace() {
     wget --no-check-certificate "${lnkstls_link}/besttrace" && chmod +x besttrace
   fi
   start_besttrace() {
-    read -p "IP or 域名(Ctrl+C退出): " ip
+    read -rep "IP or 域名(Ctrl+C退出): " ip
     ./besttrace -g cn $ip
     echo && start_besttrace
   }
@@ -487,7 +487,7 @@ ulimit -s unlimited
 ulimit -t unlimited  
 ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
   fi
-  read -p "需要重启VPS后，才能全局生效，是否现在重启 ? [Y/n] :" yn
+  read -rep "需要重启VPS后，才能全局生效，是否现在重启 ? [Y/n] :" yn
   [ -z "${yn}" ] && yn="y"
   if [[ $yn == [Yy] ]]; then
     echo -e "${Info}重启中..."
@@ -531,7 +531,7 @@ ${font_color_up}18.${font_color_end}  网络优化(实验性)
 ${font_color_up}19.${font_color_end}  Gost脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
-  read -p "请输入数字: " num
+  read -rep "请输入数字: " num
   case "$num" in
   0)
     update_sh
