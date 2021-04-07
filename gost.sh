@@ -2,13 +2,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.11"
+sh_ver="0.12"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[警告]: \033[0m"
-lnkstls_link="https://js.clapse.com"
+lnkstls_link="https://sh.clapse.com"
 
 if (($EUID != 0)); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
@@ -65,6 +65,7 @@ update_sh() {
   fi
 }
 
+# 拉取镜像
 ginuerzh_gost() {
   if [[ -n $num ]]; then
     if [ -e /etc/docker/deamon.json ]; then
@@ -82,9 +83,6 @@ ginuerzh_gost() {
 }
 
 add_docker() {
-  if [[ ! $(command -v docker) ]]; then
-    echo -e "${error}Docker未安装 !" && exit 1
-  fi
   if (($(docker images -a | grep -Ei "ginuerzh/gost" | wc -l) == 0)); then
     echo -e "${info}拉取镜像"
     ginuerzh_gost
@@ -108,6 +106,7 @@ delete_docker() {
 }
 
 config() {
+  ginuerzh_gost
   local num
   local dcon
   local fileName="gost.config"
@@ -218,4 +217,9 @@ Ctrl+C 退出" && echo
   esac
 }
 
+if [[ ! $(command -v docker) ]]; then
+  echo -e "${error}Docker未安装 !" && exit 1
+fi
+
+# 主函数
 start_menu
