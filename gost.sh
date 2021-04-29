@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.12"
+sh_ver="0.13"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -67,29 +67,29 @@ update_sh() {
 
 # 拉取镜像
 ginuerzh_gost() {
-  if [[ -n $num ]]; then
-    if [ -e /etc/docker/deamon.json ]; then
-      echo -e "${note}deamon.json文件存在 !"
-    else
-      read -rep "加速地址(不需要则回车): " num
-      if [[ -n $num ]]; then
-        echo "{\"registry-mirrors\": [\"${num}\"]}" >/etc/docker/deamon.json
-        systemctl daemon-reload
-        systemctl restart docker
-      fi
-    fi
-  fi
-  docker pull ginuerzh/gost
-}
-
-add_docker() {
   if (($(docker images -a | grep -Ei "ginuerzh/gost" | wc -l) == 0)); then
     echo -e "${info}拉取镜像"
-    ginuerzh_gost
+    if [[ -n $num ]]; then
+      if [ -e /etc/docker/deamon.json ]; then
+        echo -e "${note}deamon.json文件存在 !"
+      else
+        read -rep "加速地址(不需要则回车): " num
+        if [[ -n $num ]]; then
+          echo "{\"registry-mirrors\": [\"${num}\"]}" >/etc/docker/deamon.json
+          systemctl daemon-reload
+          systemctl restart docker
+        fi
+      fi
+    fi
+    docker pull ginuerzh/gost
     if [[ $? != 0 ]]; then
       echo -e "${error}拉取失败 !" && exit 1
     fi
   fi
+
+}
+
+add_docker() {
   read -rep "端口: " name
   read -rep "操作(-L and -F): " content
   docker run -d --name="gost${name}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest ${content} &&
