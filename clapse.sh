@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.97"
+sh_ver="0.98"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -214,6 +214,25 @@ souret() {
 }
 
 wget_bbr() {
+    if cat /etc/security/limits.conf | grep -Eqi "soft nofile|soft noproc "; then
+    echo -e "${error}已优化limits !"
+  else
+    echo "*   soft noproc   65535
+*   hard noproc   65535
+*   soft nofile   65535
+*   hard nofile   65535" >>/etc/security/limits.conf && echo -e "${info}limits设置完成 !"
+  fi
+  if cat /etc/profile | grep -Eqi "ulimit -u 65535"; then
+    echo -e "${error}已优化profile !"
+  else
+    echo "ulimit -u 65535
+ulimit -n 65535
+ulimit -d unlimited
+ulimit -m unlimited
+ulimit -s unlimited
+ulimit -t unlimited
+ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
+  fi
   cd $fder
   local bbrrss="https://github.000060000.xyz/tcp.sh"
   if [ ! -e "./tcp.sh" ]; then
@@ -400,7 +419,7 @@ speedtest_install() {
 }
 
 nat() {
-  cd $fder
+  cd $fder || exit
   local nat_link="https://arloor.com/sh/iptablesUtils/natcfg.sh"
   if [ ! -e "nat.sh" ]; then
     wget --no-check-certificate -O nat.sh ${nat_link} && chmod +x nat.sh
@@ -502,6 +521,30 @@ gost() {
   ./gost.sh
 }
 
+ddns_cloudflare() {
+  if [ ! $(command -v python3) ]; then
+    $Commad install -y python3
+  fi
+  cd $fder || exit
+  local link="${lnkstls_link}/ddns_cloudflare.py"
+  if [ ! -e ddns_cloudflare.py ]; then
+      wget --no-check-certificate $link
+  fi
+  read -rep "区域id" cid
+  read -rep "邮箱" email
+  read -rep "全局密钥" key
+  read -rep "域名" domain
+  read -rep "模式(可选)" methed
+#  cid=${cid:-0}
+#  email=${email:-0}
+#  key=${key:-0}
+#  domain=${domain:-0}
+  methed=${methed:-0}
+
+  python3 ddns_cloudflare.py $cid $email $key $domain $methed &&
+    add_crontab "* * * * * python3 $(pwd)/ddns_cloudflare.py $cid $email $key $domain $methed >$(pwd)/ddns_cloudflare.log"
+}
+
 start_menu() {
   clear
   echo && echo -e "Author: @Lnkstls
@@ -526,7 +569,7 @@ ${font_color_up}14.${font_color_end}  nat脚本
 ${font_color_up}15.${font_color_end}  ddns脚本(DnsPod)
 ${font_color_up}16.${font_color_end}  bettrace路由测试
 ${font_color_up}17.${font_color_end}  Haproxy脚本
-${font_color_up}18.${font_color_end}  网络优化(实验性)
+${font_color_up}18.${font_color_end}  ddns_cloudflare
 ${font_color_up}19.${font_color_end}  Gost脚本
 ——————————————————————————————
 Ctrl+C 退出" && echo
@@ -587,7 +630,8 @@ Ctrl+C 退出" && echo
     haproxy
     ;;
   18)
-    network_opt
+#    network_opt
+    ddns_cloudflare
     ;;
   19)
     gost
