@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.98"
+sh_ver="0.99"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -322,6 +322,10 @@ install_bt() {
     curl -sSO ${bt_link}
   fi
   bash install_panel.sh
+  
+  echo -e "${info}登录破解 !"
+  sed -i "s|if (bind_user == 'True') {|if (bind_user == 'REMOVED') {|g" /www/server/panel/BTPanel/static/js/index.js
+  rm -rf /www/server/panel/data/bind.pl
 }
 
 rm_bt() {
@@ -403,12 +407,8 @@ superspeed() {
 speedtest_install() {
   if [ "$Distributor" = "Debian" ] || [ "$Distributor" = "Ubuntu" ]; then
     apt install -y gnupg1 apt-transport-https dirmngr
-    export INSTALL_KEY=379CE192D401AB61
-    export DEB_DISTRO=$(lsb_release -sc)
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys $INSTALL_KEY
-    echo "deb https://ookla.bintray.com/debian ${DEB_DISTRO} main" | sudo tee /etc/apt/sources.list.d/speedtest.list
-    apt update -y
-    apt install -y speedtest && echo -e "${info}安装完成 !" && speedtest
+    curl -s https://install.speedtest.net/app/cli/install.deb.sh | sudo bash
+    apt-get install -y speedtest && echo -e "${info}安装完成 !" && speedtest
   elif [ "$Distributor" = "CentOS" ]; then
     wget https://bintray.com/ookla/rhel/rpm -O bintray-ookla-rhel.repo
     mv bintray-ookla-rhel.repo /etc/yum.repos.d/
@@ -530,16 +530,16 @@ ddns_cloudflare() {
   if [ ! -e ddns_cloudflare.py ]; then
       wget --no-check-certificate $link
   fi
-  read -rep "区域id" cid
-  read -rep "邮箱" email
-  read -rep "全局密钥" key
-  read -rep "域名" domain
-  read -rep "模式(可选)" methed
+  read -rep "区域id: " cid
+  read -rep "邮箱: " email
+  read -rep "全局密钥: " key
+  read -rep "域名: " domain
+  read -rep "模式(可选): " methed
 #  cid=${cid:-0}
 #  email=${email:-0}
 #  key=${key:-0}
 #  domain=${domain:-0}
-  methed=${methed:-0}
+  methed=${methed:-net}
 
   python3 ddns_cloudflare.py $cid $email $key $domain $methed &&
     add_crontab "* * * * * python3 $(pwd)/ddns_cloudflare.py $cid $email $key $domain $methed >$(pwd)/ddns_cloudflare.log"
