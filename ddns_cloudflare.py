@@ -91,12 +91,13 @@ class LoadNet:
             var = var.getresponse().read()
             return str(var, encoding='utf-8')
 
-if len(sys.argv) < 6:
-    print('参数错误! 参数: 区域id, 邮箱, 全局密钥, 域名, 模式')
-    sys.exit(1)
+# if len(sys.argv) < 6:
+#     print('参数错误! 参数: 区域id, 邮箱, 全局密钥, 域名, 模式')
+#     sys.exit(1)
 
 
 cid, email, key, domain, method = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5]
+# cid, email, key, domain, method = '9549fe1184b6b881054e479b2685a75e', '2378977735@qq.com', '838e5586ed75e6c7bb3cffc70c6c27dd4483f', 'test.aiv2.top', 'net'
 # print(cid, email, key, domain, method)
 
 http_obj = HttpNet(cid, email, key)
@@ -120,11 +121,11 @@ def start_ip(ip):
         patch_p = http_obj.patch_dnsip(http_obj.get_dnsid(domain_list, domain), domain, ip)
         print(patch_p)
 
-if sys.argv[5] == 'load':
+if method == 'load':
     now_ip = load_obj.get_load_ip()
     print('本地ip: %s' % now_ip)
     start_ip(now_ip)
-elif sys.argv[5] == 'net':
+elif method == 'net':
     net_ip = load_obj.get_net_ip()
     print('网络ip: %s' % net_ip)
     start_ip(net_ip)
@@ -148,3 +149,5 @@ else:
 # p = test1.get_load_ip()
 # print(p)
 # print(z)
+
+
