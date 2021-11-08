@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.99"
+sh_ver="101"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -11,33 +11,33 @@ note="\033[33m[警告]: \033[0m"
 fder="./JsSet"
 lnkstls_link="https://sh.clapse.com"
 
-if (($EUID != 0)); then
+if (( $EUID != 0 )); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
 fi
 
-Release=$(cat /etc/os-release | grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
+Release=$( < /etc/os-release grep "VERSION_ID" | awk -F '=' '{print $2}' | sed "s/\"//g")
 # if [ "$arch" = "x86_64" ]; then
 #   echo -e "${error}暂不支持 x86_64 以外系统 !" && exit 1
 # fi
 if [[ -f /etc/redhat-release ]]; then
   Distributor="CentOS"
   Commad="yum"
-elif cat /etc/issue | grep -Eqi "debian"; then
+elif < /etc/issue grep -Eqi "debian"; then
   Distributor="Debian"
   Commad="apt"
-elif cat /etc/issue | grep -Eqi "ubuntu"; then
+elif < /etc/issue  grep -Eqi "ubuntu"; then
   Distributor="Ubuntu"
   Commad="apt"
-elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+elif < /etc/issue  grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
   Commad="yum"
-elif cat /proc/version | grep -Eqi "debian"; then
+elif < /proc/version  grep -Eqi "debian"; then
   Distributor="Debian"
   Commad="apt"
-elif cat /proc/version | grep -Eqi "ubuntu"; then
+elif < /proc/version  grep -Eqi "ubuntu"; then
   Distributor="Ubuntu"
   Commad="apt"
-elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+elif < /proc/version  grep -Eqi "centos|red hat|redhat"; then
   Distributor="CentOS"
   Commad="yum"
 else
@@ -47,9 +47,10 @@ fi
 update_sh() {
   uname="clapse.sh"
   echo -e "当前版本为 [ ${sh_ver} ]，开始检测最新版本..."
-  local sh_new_ver=$(wget -qO- "${lnkstls_link}/${uname}" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
+  local sh_new_ver
+  sh_new_ver=$(wget -qO- "${lnkstls_link}/${uname}" | grep 'sh_ver="' | awk -F "=" '{print $NF}' | sed 's/\"//g' | head -1)
   [[ -z ${sh_new_ver} ]] && echo -e "${error}检测最新版本失败 !" && sleep 3s && start_menu
-  if [[ ${sh_new_ver} != ${sh_ver} ]]; then
+  if [[ ${sh_new_ver} != "${sh_ver}" ]]; then
     echo -e "${info}发现新版本[ ${sh_new_ver} ]，是否更新？[Y/n]"
     read -rep "(默认Y): " yn
     [[ -z "${yn}" ]] && yn="Y"
@@ -81,10 +82,10 @@ add_crontab() {
       exit 0
     fi
   fi
-  crontab -l 2>/dev/null >$0.temp
-  echo "$1" >>$0.temp &&
-    crontab $0.temp &&
-    rm -f $0.temp &&
+  crontab -l 2>/dev/null >"$0".temp
+  echo "$1" >>"$0".temp &&
+    crontab "$0".temp &&
+    rm -f "$0".temp &&
     echo -e "${info}添加crontab成功 !" && crontab -l
 }
 
@@ -214,7 +215,7 @@ souret() {
 }
 
 wget_bbr() {
-    if cat /etc/security/limits.conf | grep -Eqi "soft nofile|soft noproc "; then
+    if < /etc/security/limits.conf grep -Eqi "soft nofile|soft noproc "; then
     echo -e "${error}已优化limits !"
   else
     echo "*   soft noproc   65535
@@ -222,7 +223,7 @@ wget_bbr() {
 *   soft nofile   65535
 *   hard nofile   65535" >>/etc/security/limits.conf && echo -e "${info}limits设置完成 !"
   fi
-  if cat /etc/profile | grep -Eqi "ulimit -u 65535"; then
+  if < /etc/profile grep -Eqi "ulimit -u 65535"; then
     echo -e "${error}已优化profile !"
   else
     echo "ulimit -u 65535
@@ -233,7 +234,7 @@ ulimit -s unlimited
 ulimit -t unlimited
 ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
   fi
-  cd $fder
+  cd $fder || exit
   local bbrrss="https://github.000060000.xyz/tcp.sh"
   if [ ! -e "./tcp.sh" ]; then
     wget --no-check-certificate -O tcp.sh $bbrrss && chmod +x tcp.sh
@@ -242,7 +243,7 @@ ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}pr
 }
 
 install_docker() {
-  if [ ! $(command -v docker) ]; then
+  if [ ! "$(command -v docker)" ]; then
     echo -e "${info}开始安装Docker..."
     case $Distributor in
     Debian)
@@ -268,12 +269,12 @@ install_docker() {
   else
     echo -e "${info}Docker已安装 !"
   fi
-  if [ ! $(command -v docker-compose) ]; then
+  if [ ! "$(command -v docker-compose)" ]; then
     echo -e "${info}开始安装Docker-Compose..."
     curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose && echo -e "${info}安装成功 !"
     chmod +x /usr/local/bin/docker-compose
     ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-    rm -f $(which dc)
+    rm -f "$(which dc)"
     ln -s /usr/bin/docker-compose /usr/bin/dc
   else
     echo -e "${info}Docker-Compose已安装 !"
@@ -289,18 +290,17 @@ poseidon() {
 }
 
 vnstatcont() {
-  if [ ! $(command -v vnstat) ]; then
+  if [ ! "$(command -v vnstat)" ]; then
     echo -e "${info}安装vnstat..."
     $Commad install -y vnstat
     vnstat --iflist
     read -rep "选择网络接口(默认eth0): " eth
     eth=${eth:-eth0}
-    sed -i "5s/.*/Interface \"${eth}\"/" /etc/vnstat.conf
-    if (($? != 0)); then
+    if ! sed -i "5s/.*/Interface \"${eth}\"/" /etc/vnstat.conf; then
       echo -e "${error}设置网络接口错误 !" && exit 1
     fi
   fi
-  cd $fder
+  cd $fder || exit
   local vnstat_link="${lnkstls_link}/vnstat.sh"
   if [ ! -e vnstat.sh ]; then
     wget --no-check-certificate $vnstat_link && chmod +x vnstat.sh
@@ -311,25 +311,25 @@ vnstatcont() {
   gb=${gb:-1024}
   read -rep "统计(默认0=所有, 1=上传, 2=下载): " range
   range=${range:-0}
-  ./vnstat.sh $time $gb $range &&
+  ./vnstat.sh "$time" "$gb" "$range" &&
     add_crontab "* * * * * bash $(pwd)/vnstat.sh $time $gb $range >$(pwd)/vnstat.log"
 }
 
 install_bt() {
-  cd $fder
+  cd $fder || exit
   local bt_link="http://download.bt.cn/install/install_panel.sh"
   if [ ! -e "install_panel.sh" ]; then
     curl -sSO ${bt_link}
   fi
   bash install_panel.sh
-  
+
   echo -e "${info}登录破解 !"
   sed -i "s|if (bind_user == 'True') {|if (bind_user == 'REMOVED') {|g" /www/server/panel/BTPanel/static/js/index.js
   rm -rf /www/server/panel/data/bind.pl
 }
 
 rm_bt() {
-  cd $fder
+  cd $fder || exit
   local rmbt_link="http://download.bt.cn/install/bt-uninstall.sh"
   if [ ! -e "bt_uninstall.sh" ]; then
     wget --no-check-certificate -O bt_uninstall.sh ${rmbt_link}
@@ -338,36 +338,70 @@ rm_bt() {
 }
 
 cloudflare() {
-  if [ ! $(command -v gcc) ]; then
+  if [ ! "$(command -v gcc)" ]; then
     echo -e "${info}安装gcc..."
     $Commad install -y gcc
   fi
-  if [ ! $(command -v make) ]; then
+  if [ ! "$(command -v make)" ]; then
     echo -e "${info}安装make..."
     $Commad install -y make
   fi
-  cd $fder
+  cd $fder || exit
   local cloudflare_link="https://proxy.freecdn.workers.dev/?url=https://github.com/badafans/better-cloudflare-ip/releases/latest/download/linux.tar.gz"
   if [ ! -e "linux.tar.gz" ]; then
-    wget --no-check-certificate -O linux.tar.gz $cloudflare_link &&
+    wget --no-check-certificate -O linux.tar.gz "$cloudflare_link" &&
       tar -zxf linux.tar.gz &&
       cd linux &&
       ./configure && make
   else
-    cd linux
+    cd linux || exit
   fi
+  # shellcheck disable=SC2164
   cd src
   ./cf.sh
 }
 
 install_hot() {
-  cd $fder
+  cd $fder || exit
   local hot_link="https://raw.githubusercontent.com/CokeMine/ServerStatus-Hotaru/master/status.sh"
   wget --no-check-certificate -O status.sh ${hot_link} && chmod +x status.sh && ./status.sh c
 }
 
 ddserver() {
-  cd $fder
+#    0) 升级本脚本
+#  1) CentOS 7 (DD) 用户名：root 密码：Pwd@CentOS
+#  2) CentOS 6 (阿里云镜像) 用户名：root 密码：MoeClub.org
+#  3) CentOS 6 用户名：root 密码：MoeClub.org
+#  4) Debian 7 x32 用户名：root 密码：MoeClub.org
+#  5) Debian 8 x64 用户名：root 密码：MoeClub.org
+#  6) Debian 9 x64 用户名：root 密码：MoeClub.org
+#  7) Debian 10 x64 用户名：root 密码：cxthhhhh.com
+#  8) Ubuntu 14.04x64 用户名：root 密码：MoeClub.org
+#  9) Ubuntu 16.04x64 用户名：root 密码：MoeClub.org
+#  10) Ubuntu 18.04x64 用户名：root 密码：MoeClub.org
+#  11) 萌咖Win7x64 用户名:Administrator  密码：Vicer
+#  12) Win2019 By:MeowLove  密码：cxthhhhh.com
+#  13) Win2016 By:MeowLove  密码：cxthhhhh.com
+#  14) Win2012 R2 By:MeowLove  密码：cxthhhhh.com
+#  15) Win2008 R2 By:MeowLove  密码：cxthhhhh.com
+#  16) Windows 7 Vienna By:MeowLove  密码：cxthhhhh.com
+#  17) Windows 2003 Vienna By:MeowLove  密码：cxthhhhh.com
+#  18) Win7x32 By:老司机  用户名:Administrator  密码：Windows7x86-Chinese
+#  19) Win-2003x32 By:老司机  用户名:Administrator  密码：WinSrv2003x86-Chinese
+#  20) Win2008x64 By:老司机  用户名:Administrator  密码：WinSrv2008x64-Chinese
+#  21) Win2012R2x64 By:老司机  用户名:Administrator  密码：WinSrv2012r2
+#  22) CentOS 8 用户名：root 密码：cxthhhhh.com 推荐512M以上使用
+#  23) Win7x64 By:net.nn  用户名:Administrator  密码：nat.ee
+#  24) Win7x64 Uefi启动的VPS专用(如:甲骨文)By:net.nn  用户名:Administrator  密码：nat.ee
+#  25) Win8.1x64 By:net.nn  用户名:Administrator  密码：nat.ee
+#  26) Win8.1x64 Uefi启动的VPS专用(如:甲骨文)By:net.nn  用户名:Administrator  密码：nat.ee
+#  27) 2008r2x64 By:net.nn  用户名:Administrator  密码：nat.ee
+#  28) 2008r2x64 Uefi启动的VPS专用(如:甲骨文)By:net.nn  用户名:Administrator  密码：nat.ee
+#  29) Win8.1x64 By:net.nn  用户名:Administrator  密码：nat.ee
+#  30) Win8.1x64 Uefi启动的VPS专用(如:甲骨文)By:net.nn  用户名:Administrator  密码：nat.ee
+#  自定义安装请使用：bash InstallNET.sh -dd '您的直连'
+
+  cd $fder || exit
   local dd_link="https://raw.githubusercontent.com/veip007/dd/master/dd-gd.sh"
   if [ ! -e "dd-gd.sh" ]; then
     wget --no-check-certificate -O dd-gd.sh ${dd_link} && chmod +x dd-gd.sh
@@ -376,7 +410,7 @@ ddserver() {
 }
 
 time_up() {
-  if [ ! $(command -v ntpdate) ]; then
+  if [ ! "$(command -v ntpdate)" ]; then
     $Commad install -y ntpdate
   fi
   timedatectl set-timezone 'Asia/Shanghai' && ntpdate -u pool.ntp.org && hwclock -w
@@ -385,11 +419,11 @@ time_up() {
 
 autoCdn() {
   local fileName="cloudflare.py"
-  local autoCdn_link="${lnkstls_link}/${fileName}"
+#  local autoCdn_link="${lnkstls_link}/${fileName}"
     if [ ! -e $fileName ]; then
     wget --no-check-certificate $lnkstls_link
   fi
-  if [ ! `command -v python3` ]; then
+  if [ ! "$(command -v python3)" ]; then
     echo -e "${info}安装python3..."
     $Commad install -y python3
   fi
@@ -398,7 +432,7 @@ autoCdn() {
 }
 
 superspeed() {
-  cd $fder
+  cd $fder || exit
   superspeed_link="https://git.io/superspeed"
   wget --no-check-certificate -O superspeed.sh ${superspeed_link} && chmod +x superspeed.sh
   ./superspeed.sh
@@ -428,7 +462,7 @@ nat() {
 }
 
 dnspod() {
-  cd $fder
+  cd $fder || exit
   local dnspod_link="${lnkstls_link}/dnspod.sh"
   local dnspod_line_link="${lnkstls_link}/dnspod_line.sh"
   echo -e "
@@ -448,7 +482,7 @@ ${font_color_up}1.${font_color_end} 外网获取ip
     read -rep "请输入Host: " host
     read -rep "请输入TTL(默认600): " ttl
     ttl=${ttl:-600}
-    ./dnspod.sh $APP_ID $APP_Token $domain $host $ttl &&
+    ./dnspod.sh "$APP_ID" "$APP_Token" "$domain" "$host" "$ttl" &&
       add_crontab "* * * * * bash $(pwd)/dnspod.sh ${APP_ID} ${APP_Token} ${domain} ${host} ${ttl} >$(pwd)/dnspod.log"
     ;;
   2)
@@ -466,13 +500,13 @@ ${font_color_up}1.${font_color_end} 外网获取ip
 }
 
 besttrace() {
-  cd $fder
+  cd $fder || exit
   if [ ! -e "besttrace" ]; then
     wget --no-check-certificate "${lnkstls_link}/besttrace" && chmod +x besttrace
   fi
   start_besttrace() {
     read -rep "IP or 域名(Ctrl+C退出): " ip
-    ./besttrace -g cn $ip
+    ./besttrace -g cn "$ip"
     echo && start_besttrace
   }
   start_besttrace
@@ -486,29 +520,29 @@ haproxy() {
 }
 
 network_opt() {
-  if cat /etc/security/limits.conf | grep -Eqi "soft nofile|soft noproc "; then
+  if < /etc/security/limits.conf grep -Eqi "soft nofile|soft noproc "; then
     echo -e "${error}已优化limits !"
   else
-    echo "*   soft noproc   65535  
-*   hard noproc   65535  
-*   soft nofile   65535  
+    echo "*   soft noproc   65535
+*   hard noproc   65535
+*   soft nofile   65535
 *   hard nofile   65535" >>/etc/security/limits.conf && echo -e "${info}limits设置完成 !"
   fi
-  if cat /etc/profile | grep -Eqi "ulimit -u 65535"; then
+  if < /etc/profile grep -Eqi "ulimit -u 65535"; then
     echo -e "${error}已优化profile !" && exit 0
   else
-    echo "ulimit -u 65535  
+    echo "ulimit -u 65535
 ulimit -n 65535
-ulimit -d unlimited  
-ulimit -m unlimited  
-ulimit -s unlimited  
-ulimit -t unlimited  
+ulimit -d unlimited
+ulimit -m unlimited
+ulimit -s unlimited
+ulimit -t unlimited
 ulimit -v unlimited" >>/etc/profile && source /etc/profile && echo -e "${info}profile设置完成 !"
   fi
   read -rep "需要重启VPS后，才能全局生效，是否现在重启 ? [Y/n] :" yn
   [ -z "${yn}" ] && yn="y"
   if [[ $yn == [Yy] ]]; then
-    echo -e "${Info}重启中..."
+    echo -e "${info}重启中..."
     reboot
   fi
 }
@@ -522,7 +556,7 @@ gost() {
 }
 
 ddns_cloudflare() {
-  if [ ! $(command -v python3) ]; then
+  if [ ! "$(command -v python3)" ]; then
     $Commad install -y python3
   fi
   cd $fder || exit
@@ -541,8 +575,30 @@ ddns_cloudflare() {
 #  domain=${domain:-0}
   methed=${methed:-net}
 
-  python3 ddns_cloudflare.py $cid $email $key $domain $methed &&
+  python3 ddns_cloudflare.py "$cid" "$email" "$key" "$domain" "$methed" &&
     add_crontab "* * * * * python3 $(pwd)/ddns_cloudflare.py $cid $email $key $domain $methed >$(pwd)/ddns_cloudflare.log"
+}
+
+xrayx() {
+  cd ${fder} || exit
+  local link="${lnkstls_link}/xrayx.py"
+  if [ ! -e xrayx.py ]; then
+    wget --no-check-certificate ${link} && chmod +x xrayx.sh
+  fi
+  #  Python环境
+  if [ ! "$(command -v python3)" ]; then
+    echo -e "${info}安装Python3..."
+    $Commad install -y python3
+  fi
+  if [ ! "$(command -v pip)" ]; then
+    echo -e "${info}安装Python-pip..."
+    $Commad install -y python-pip
+  fi
+  #  pip环境
+  if pip list | grep -w "PyYAML"; then
+    echo -e "${info}安装Python-pip..."
+    pip install PyYAML
+  fi
 }
 
 start_menu() {
@@ -571,6 +627,7 @@ ${font_color_up}16.${font_color_end}  bettrace路由测试
 ${font_color_up}17.${font_color_end}  Haproxy脚本
 ${font_color_up}18.${font_color_end}  ddns_cloudflare
 ${font_color_up}19.${font_color_end}  Gost脚本
+${font_color_up}20.${font_color_end}  Xrayx安装
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -rep "请输入数字: " num
@@ -636,6 +693,9 @@ Ctrl+C 退出" && echo
   19)
     gost
     ;;
+  20)
+    xrayx
+    ;;
   *)
     echo -e "${error}输入错误 !"
     sleep 3s
@@ -657,7 +717,7 @@ for opt in "$@"; do
     ret)
       souret
       ;;
-    * | --)
+    -- | *)
       echo -e "${error}错误参数 !" && exit 1
       ;;
     esac
@@ -680,12 +740,12 @@ fi
 if [ ! -d "$fder" ]; then
   mkdir $fder
 fi
-mad=(sudo wget vim unzip curl iperf3 screen htop)
-for item in ${mad[@]}; do
-  if [ ! $(command -v ${item}) ]; then
-    echo -e "${info}安装${item}..."
-    $Commad install -y $item
-  fi
-done
+mad=(sudo wget vim unzip curl iperf3 screen htop git)
+for item in "${mad[@]}"; do
+    if [ ! "$(command -v "${item}")" ]; then
+      echo -e "${info}安装${item}..."
+      $Commad install -y "$item"
+    fi
+  done
 
 start_menu
