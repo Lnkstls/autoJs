@@ -2,14 +2,14 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="101"
+sh_ver="102"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
 error="${error_color_up}[错误]: ${error_color_end}"
 note="\033[33m[警告]: \033[0m"
 fder="./JsSet"
-lnkstls_link="https://sh.clapse.com"
+lnkstls_link="http://sh.clapse.com"
 
 if (( $EUID != 0 )); then
   echo -e "${error}仅在root环境下测试 !" && exit 1
@@ -564,19 +564,9 @@ ddns_cloudflare() {
   if [ ! -e ddns_cloudflare.py ]; then
       wget --no-check-certificate $link
   fi
-  read -rep "区域id: " cid
-  read -rep "邮箱: " email
-  read -rep "全局密钥: " key
-  read -rep "域名: " domain
-  read -rep "模式(可选): " methed
-#  cid=${cid:-0}
-#  email=${email:-0}
-#  key=${key:-0}
-#  domain=${domain:-0}
-  methed=${methed:-net}
 
-  python3 ddns_cloudflare.py "$cid" "$email" "$key" "$domain" "$methed" &&
-    add_crontab "* * * * * python3 $(pwd)/ddns_cloudflare.py $cid $email $key $domain $methed >$(pwd)/ddns_cloudflare.log"
+  python3 ddns_cloudflare.py &&
+    add_crontab "* * * * * python3 $(pwd)/ddns_cloudflare.py"
 }
 
 xrayx() {
@@ -590,15 +580,16 @@ xrayx() {
     echo -e "${info}安装Python3..."
     $Commad install -y python3
   fi
-  if [ ! "$(command -v pip)" ]; then
+  if [ ! "$(command -v pip3)" ]; then
     echo -e "${info}安装Python-pip..."
-    $Commad install -y python-pip
+    $Commad install -y python3-pip
   fi
   #  pip环境
-  if pip list | grep -w "PyYAML"; then
+  if ! pip list | grep -w "PyYAML"; then
     echo -e "${info}安装Python-pip..."
     pip install PyYAML
   fi
+  python3 xrayx.py
 }
 
 start_menu() {
