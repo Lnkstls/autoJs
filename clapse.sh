@@ -559,7 +559,6 @@ ddns_cloudflare() {
   if [ ! "$(command -v python3)" ]; then
     $Commad install -y python3
   fi
-  cd $fder || exit
   local link="${lnkstls_link}/ddns_cloudflare.py"
   if [ ! -e ddns_cloudflare.py ]; then
       wget --no-check-certificate $link
