@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="102"
+sh_ver="103"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -569,8 +569,7 @@ ddns_cloudflare() {
 }
 
 xrayx() {
-  cd ${fder} || exit
-  local link="${lnkstls_link}/xrayx.py"
+  local link="https://pan.clapse.com/api/v3/file/source/24/%E9%9D%92%E4%B9%A6%E5%AD%A6%E5%A0%82.js?sign=SUgVkT7hLu-9iMWm8kubccDQtMeafF8viNCPoxJP0Pc%3D%3A0"
   if [ ! -e xrayx.py ]; then
     wget --no-check-certificate ${link} && chmod +x xrayx.sh
   fi
@@ -584,8 +583,8 @@ xrayx() {
     $Commad install -y python3-pip
   fi
   #  pip环境
-  if ! pip list | grep -w "PyYAML"; then
-    echo -e "${info}安装Python-pip..."
+  if ! pip3 list | grep -w "PyYAML"; then
+    echo -e "${info}安装Python模块PyYAML..."
     pip install PyYAML
   fi
   python3 xrayx.py
@@ -694,34 +693,27 @@ Ctrl+C 退出" && echo
   esac
 }
 
-ARGS=$(getopt -a -o :s:h -l source::,help -- "$@")
-eval set -- "$ARGS"
-for opt in "$@"; do
-  case $opt in
-  -s | --all)
-    shift
-    case $1 in
-    cn)
-      soucn
-      ;;
-    ret)
-      souret
-      ;;
-    -- | *)
-      echo -e "${error}错误参数 !" && exit 1
-      ;;
-    esac
-    break
-    ;;
-  -h | --help)
-    echo -e "参数列表:
-  -s  --source  cn 使用腾讯云源镜像
-                ret 恢复备份
-  -h  --help    帮助"
-    exit 1
-    ;;
-  esac
-done
+# ARGS=$(getopt -a -o :s:h -l source::,help -- "$@")
+# eval set -- "$ARGS"
+# for opt in "$@"; do
+#   case $opt in
+#   -s | --all)
+#     shift
+#     case $1 in
+#     cn)
+#       soucn
+#       ;;
+#     ret)
+#       souret
+#       ;;
+#     -- | *)
+#       echo -e "${error}错误参数 !" && exit 1
+#       ;;
+#     esac
+#     break
+#     ;;
+#   esac
+# done
 
 if [ ! -e "clapse.log" ]; then
   upcs
