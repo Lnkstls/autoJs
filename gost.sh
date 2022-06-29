@@ -2,7 +2,7 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 
-sh_ver="0.13"
+sh_ver="14"
 
 font_color_up="\033[32m" && font_color_end="\033[0m" && error_color_up="\033[31m" && error_color_end="\033[0m"
 info="${font_color_up}[提示]: ${font_color_end}"
@@ -129,7 +129,7 @@ config() {
     }
 
     num=0
-    for port in `$upDCon | grep -oE "\-L.*\"" | grep -oE "//:[0-9]*" | sed -e "s/\///g" -e "s/://g"`; do
+    for port in $($upDCon | grep -oE "\-L.*\"" | grep -oE "//:[0-9]*" | sed -e "s/\///g" -e "s/://g"); do
     let num++
         dcon=`${upDCon} | grep -oE "\".*\"" | awk -v num=$num 'NR==num {print $3}' | grep -o "//.*?" | sed -e "s/\/\///g" -e "s/?//g"`
         if [ -z "$dcon" ]; then
@@ -184,9 +184,72 @@ config() {
   rm -f gost.temp
 }
 
+# 导出配置
+exportConfig() {
+if [ -f "gost.config" ]; then
+    echo -e "${note}配置文件已存在是否覆盖？[Y/n]"
+    read -rep "(默认Y): " yn
+    [[ -z "${yn}" ]] && yn="Y"
+    if [[ ${yn} == [Yy] ]]; then
+      rm -f gost.config
+    else
+      echo && echo "${info}已取消..." && exit 0
+    fi
+fi
+
+
+  # 导出为每3行为一组
+  # 1:name
+  # 2:gost -L
+  # 3:gost -F
+  local i
+  i=`docker ps --no-trunc --format "table {{.Names}}={{.Command}}" | grep gost | sed -e "s/\/bin\/gost //" -e "s/=/ /" -e "s/\"//g"`
+  for item in $i; do
+    echo "${item}" >> gost.config 
+  done && echo -e "${info}导出成功 gost.config"
+}
+
+# 导入配置
+importConfig() {
+  local fileName
+  fileName="gost.config"
+  if [ ! -f $fileName ]; then
+    echo -e "${error}gost.config 文件不存在"
+    exit 1
+  fi
+  # awk '{print $0}' < a.ini | sed -e "s/\"//g" | grep -o "^gost[0-9]*" | 
+  # 每三行为一组数据
+  for((i=0;i<`expr $(wc -l <gost.config) / 3`;i++)); do
+    count0=3
+    count1=`expr $i \* $count0 + 1`
+    var1=`sed -n "${count1}p" < $fileName`
+    count2=`expr $i \* $count0 + 2`
+    var2=`sed -n "${count2}p" <  $fileName`
+    count3=`expr $i \* $count0 + 3`
+    var3=`sed -n "${count3}p" <  $fileName`
+    # echo "${count1}---${count2}---$count3"
+    echo "${var1}---${var2}---$var3"
+    if [ -z `docker ps --no-trunc --format "table {{.Names}}" | grep -ow ${var1}` ];then
+      docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest "${var1} ${var3}" || echo -e "${error}创建容器失败" && exit 1
+    else
+      echo -e "${note}容器${var1}已存在，是否跳过？[Y/n]"
+      read -rep "(默认Y): " yn
+      [[ -z "${yn}" ]] && yn="Y"
+      if [[ ${yn} == [Yy] ]]; then
+       echo -e "${info}跳过${var1}..."
+      else
+        docker rm -f `docker kill $var1` >/dev/null
+        docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest "${var1} ${var3}" || echo -e "${error}创建容器失败" && exit 1
+      fi
+    fi
+
+  done
+  
+}
+
 
 start_menu() {
-  echo && echo -e "Author: @Lnkstls
+  echo && echo -e "
 当前版本: [${sh_ver}]
 ——————————————————————————————
 ${font_color_up}0.${font_color_end} 升级脚本
@@ -194,7 +257,9 @@ ${font_color_up}0.${font_color_end} 升级脚本
 ${font_color_up}1.${font_color_end} 创建隧道
 ${font_color_up}2.${font_color_end} 查看隧道
 ${font_color_up}3.${font_color_end} 删除端口
-${font_color_up}4.${font_color_end} 更新配置
+——————————————————————————————
+${font_color_up}4.${font_color_end} 导出配置
+${font_color_up}5.${font_color_end} 导入配置
 ——————————————————————————————
 Ctrl+C 退出" && echo
   read -rep "请输入数字: " num
@@ -212,7 +277,15 @@ Ctrl+C 退出" && echo
     delete_docker
     ;;
   4)
-    config
+    exportConfig
+    ;;
+  5)
+    importConfig
+    ;;
+  *)
+    echo -e "${error}输入错误"
+    sleep 3s
+    start_menu
     ;;
   esac
 }
