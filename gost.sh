@@ -211,6 +211,7 @@ fi
 
 # 导入配置
 importConfig() {
+  ginuerzh_gost
   local fileName
   fileName="gost.config"
   if [ ! -f $fileName ]; then
@@ -230,7 +231,7 @@ importConfig() {
     # echo "${count1}---${count2}---$count3"
     echo "${var1}---${var2}---$var3"
     if [ -z `docker ps --no-trunc --format "table {{.Names}}" | grep -ow ${var1}` ];then
-      docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest "${var1} ${var3}" || echo -e "${error}创建容器失败" && exit 1
+      docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest ${var2} ${var3} || (echo -e "${error}创建容器失败" && exit 1)
     else
       echo -e "${note}容器${var1}已存在，是否跳过？[Y/n]"
       read -rep "(默认Y): " yn
@@ -239,7 +240,7 @@ importConfig() {
        echo -e "${info}跳过${var1}..."
       else
         docker rm -f `docker kill $var1` >/dev/null
-        docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest "${var1} ${var3}" || echo -e "${error}创建容器失败" && exit 1
+        docker run -d --name="${var1}" --net=host --log-opt max-size=10m --restart=always ginuerzh/gost:latest ${var2} ${var3} || (echo -e "${error}创建容器失败" && exit 1)
       fi
     fi
 
